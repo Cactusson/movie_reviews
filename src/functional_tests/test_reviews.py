@@ -5,7 +5,9 @@ from playwright.sync_api import expect
 from functional_tests.pages.home_page import HomePage
 
 
-def test_navigating_between_reviews(live_server, page):
+def test_navigating_between_reviews(
+    live_server, page, night_patrol, king_of_color, sound_of_falling
+):
     home_page = HomePage(page)
 
     # Alice wants to check out the new website which aggregates movie reviews
@@ -15,9 +17,9 @@ def test_navigating_between_reviews(live_server, page):
     # Alice sees that the title says something about `reviews`
     expect(page).to_have_title(re.compile(r"reviews", re.IGNORECASE))
 
-    # There are currently five reviews published
+    # There are currently three reviews published
     reviews = page.locator("div.review").all()
-    assert len(reviews) == 5
+    assert len(reviews) == 3
 
     # The most recent one (the first on the page) has title `Night Patrol`
     first_review = reviews[0]

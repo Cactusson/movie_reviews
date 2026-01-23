@@ -89,6 +89,15 @@ class TestReviewModel:
         )
         assert review.content is None
 
+    def test_reviews_are_ordered_by_date(
+        self, night_patrol, king_of_color, sound_of_falling
+    ):
+        assert list(Review.objects.all()) == [
+            night_patrol,
+            sound_of_falling,
+            king_of_color,
+        ]
+
 
 @pytest.mark.django_db
 class TestAuthorModel:
@@ -111,3 +120,6 @@ class TestAuthorModel:
 
     def test_author_is_related_to_review(self, night_patrol, mzs):
         assert mzs == night_patrol.author
+
+    def test_authors_are_ordered_by_name(self, sheila, mzs):
+        assert list(Author.objects.all()) == [mzs, sheila]

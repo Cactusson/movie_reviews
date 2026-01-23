@@ -1,3 +1,13 @@
 {% extends "reviews/base.html" %}
 
 {% block title %}Movie Reviews{% endblock title %}
+
+{% block content %}
+    <h1>Movie Reviews</h1>
+
+    {% for review in reviews %}
+        <div class="review">
+            <h2>{{ review.title }}</h2>
+        </div>
+    {% endfor %}
+{% endblock content %}

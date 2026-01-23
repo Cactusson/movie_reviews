@@ -12,6 +12,7 @@ class Review(models.Model):
 
     class Meta:
         unique_together = ("title", "author", "url", "date")
+        ordering = ("-date",)
 
     def __str__(self):
         return self.title
@@ -23,6 +24,9 @@ class Review(models.Model):
 
 class Author(models.Model):
     name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        ordering = ("name",)
 
     def __str__(self):
         return self.name
