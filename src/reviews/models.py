@@ -6,6 +6,15 @@ class Review(models.Model):
     author = models.ForeignKey(
         "reviews.Author", related_name="reviews", on_delete=models.CASCADE
     )
+    url = models.URLField()
+    date = models.DateField()
+    content = models.TextField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ("title", "author", "url", "date")
+
+    def __str__(self):
+        return self.title
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -13,7 +22,10 @@ class Review(models.Model):
 
 
 class Author(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.name
 
     def save(self, *args, **kwargs):
         self.full_clean()
