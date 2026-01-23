@@ -17,6 +17,20 @@ class TestHomePage:
     def test_displays_review(self, night_patrol, soup):
         reviews = soup.find_all("div", {"class": "review"})
         assert len(reviews) == 1
-        headline = reviews[0].find("h2")
+        review = reviews[0]
+
+        headline = review.find("h2")
         assert headline is not None
         assert headline.string == night_patrol.title
+
+        author = review.find("div", {"class": "author"})
+        assert author is not None
+        assert night_patrol.author.name in author.text
+
+        url = review.find("div", {"class": "url"})
+        assert url is not None
+        assert night_patrol.url in url.text
+
+        date = review.find("div", {"class": "date"})
+        assert date is not None
+        assert night_patrol.formatted_date in date.text

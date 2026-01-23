@@ -21,6 +21,10 @@ class Review(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
+    @property
+    def formatted_date(self):
+        return self.date.strftime("%B %d, %Y")
+
 
 class Author(models.Model):
     name = models.CharField(max_length=255, unique=True)

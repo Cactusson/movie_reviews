@@ -2,7 +2,7 @@ import re
 
 from playwright.sync_api import expect
 
-from functional_tests.pages.home_page import HomePage
+from .pages.home_page import HomePage
 
 
 def test_navigating_between_reviews(
@@ -23,7 +23,7 @@ def test_navigating_between_reviews(
 
     # The most recent one (the first on the page) has title `Night Patrol`
     first_review = reviews[0]
-    expect(first_review).to_have_text("Night Patrol")
+    expect(first_review).to_contain_text("Night Patrol")
 
     # The review's author appears to be `Matt Zoller Seitz`
-    expect(first_review).to_have_text("Matt Zoller Seitz")
+    expect(first_review).to_contain_text("Matt Zoller Seitz")

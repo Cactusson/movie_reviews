@@ -98,6 +98,9 @@ class TestReviewModel:
             king_of_color,
         ]
 
+    def test_formatted_date(self, night_patrol):
+        assert night_patrol.formatted_date == "January 19, 2026"
+
 
 @pytest.mark.django_db
 class TestAuthorModel:

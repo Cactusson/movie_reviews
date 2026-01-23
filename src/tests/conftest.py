@@ -1,8 +1,22 @@
 import datetime
+import os
 
 import pytest
+from playwright.sync_api import sync_playwright
 
 from reviews.models import Author, Review
+
+os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
+
+
+@pytest.fixture
+def page(request):
+    headed = request.config.getoption("--headed")
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=not headed)
+        page = browser.new_page()
+        yield page
+        browser.close()
 
 
 @pytest.fixture

@@ -8,6 +8,9 @@
     {% for review in reviews %}
         <div class="review">
             <h2>{{ review.title }}</h2>
+            <div class="author"><strong>Author: </strong> {{ review.author.name }}</div>
+            <div class="url"><strong>URL: </strong> {{ review.url }}</div>
+            <div class="date"><strong>Date: </strong> {{ review.formatted_date }}</div>
         </div>
     {% endfor %}
 {% endblock content %}
