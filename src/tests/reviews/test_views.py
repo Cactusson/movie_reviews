@@ -103,4 +103,4 @@ class TestReviewDetail:
         author = review.find("div", {"class": "author"})
         author_url = author.find("a")
         assert author_url is not None
-        assert night_patrol.author.slug in author_url["href"]
+        assert author_url["href"] == night_patrol.author.get_absolute_url()

@@ -3,6 +3,7 @@ import re
 from bs4 import BeautifulSoup
 from django.db import models
 from django.urls import reverse
+from django.utils.text import slugify
 
 
 class Review(models.Model):
@@ -45,6 +46,7 @@ class Review(models.Model):
 
 class Author(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
 
     class Meta:
         ordering = ("name",)
@@ -53,5 +55,7 @@ class Author(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
         self.full_clean()
         super().save(*args, **kwargs)

@@ -126,6 +126,10 @@ class TestAuthorModel:
         author = Author(name="Matt Zoller Seitz")
         author.save()  # does not raise an error
 
+    def test_slug(self):
+        author = Author.objects.create(name="Matt Zoller Seitz")
+        assert author.slug == "matt-zoller-seitz"
+
     def test_string_representation(self, mzs):
         assert str(mzs) == mzs.name
 
