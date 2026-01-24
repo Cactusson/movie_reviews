@@ -6,4 +6,5 @@ app_name = "reviews"
 urlpatterns = [
     path("", views.home_page, name="home_page"),
     path("<int:pk>/", views.review_detail, name="review_detail"),
+    path("<str:slug>/", views.author_detail, name="author_detail"),
 ]

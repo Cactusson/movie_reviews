@@ -59,3 +59,6 @@ class Author(models.Model):
             self.slug = slugify(self.name)
         self.full_clean()
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("reviews:author_detail", kwargs={"slug": self.slug})
