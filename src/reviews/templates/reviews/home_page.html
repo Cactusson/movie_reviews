@@ -6,14 +6,6 @@
     <h1>Movie Reviews</h1>
 
     {% for review in reviews %}
-        <div class="review">
-            <h2><a href="{{ review.get_absolute_url }}">{{ review.title }}</a></h2>
-            <div class="author"><strong>Author: </strong> <a href="{{ review.author.get_absolute_url }}">{{ review.author.name }}</a></div>
-            <div class="url"><strong>URL: </strong> {{ review.url }}</div>
-            <div class="date"><strong>Date: </strong> {{ review.formatted_date }}</div>
-            {% if review.content %}
-                <div class="review-content">{{ review.first_sentence }}</div>
-            {% endif %}
-        </div>
+        {% include "reviews/_review.html" with review=review link_needed=True first_sentence_only=True %}
     {% endfor %}
 {% endblock content %}
