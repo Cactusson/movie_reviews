@@ -1,4 +1,8 @@
+import re
+
+from bs4 import BeautifulSoup
 from django.db import models
+from django.urls import reverse
 
 
 class Review(models.Model):
@@ -21,9 +25,22 @@ class Review(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse("reviews:review_detail", kwargs={"pk": self.pk})
+
     @property
     def formatted_date(self):
         return self.date.strftime("%B %d, %Y")
+
+    @property
+    def first_sentence(self):
+        if self.content is None:
+            return None
+        content = BeautifulSoup(self.content, "html.parser").get_text()
+        match = re.match(r"^.*?[.!?](?:\s|$)", content)
+        if match:
+            return match.group(0).strip()
+        return content.strip()
 
 
 class Author(models.Model):

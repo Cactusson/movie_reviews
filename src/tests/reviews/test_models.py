@@ -101,6 +101,19 @@ class TestReviewModel:
     def test_formatted_date(self, night_patrol):
         assert night_patrol.formatted_date == "January 19, 2026"
 
+    def test_get_absolute_url(self, night_patrol):
+        assert night_patrol.get_absolute_url().endswith(f"/{night_patrol.pk}/")
+
+    def test_first_sentence_is_none_if_content_is_none(self, sound_of_falling):
+        assert sound_of_falling.content is None
+        assert sound_of_falling.first_sentence is None
+
+    def test_first_sentence_of_content(self, night_patrol):
+        assert (
+            night_patrol.first_sentence
+            == "Writer-director Ryan Prows‘ “Night Patrol,” a cop corruption thriller that’s also a vampire movie, has a sprawling cast, but focuses on four characters."
+        )
+
 
 @pytest.mark.django_db
 class TestAuthorModel:

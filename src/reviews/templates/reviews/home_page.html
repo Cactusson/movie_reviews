@@ -7,10 +7,13 @@
 
     {% for review in reviews %}
         <div class="review">
-            <h2>{{ review.title }}</h2>
+            <h2><a href="{{ review.get_absolute_url }}">{{ review.title }}</a></h2>
             <div class="author"><strong>Author: </strong> {{ review.author.name }}</div>
             <div class="url"><strong>URL: </strong> {{ review.url }}</div>
             <div class="date"><strong>Date: </strong> {{ review.formatted_date }}</div>
+            {% if review.content %}
+                <div class="review-content">{{ review.first_sentence }}</div>
+            {% endif %}
         </div>
     {% endfor %}
 {% endblock content %}
