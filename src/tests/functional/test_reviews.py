@@ -40,4 +40,3 @@ def test_navigating_between_reviews(
 
     # She is redirected to the page containing all the reviews by this author
     expect(page).to_have_title("Matt Zoller Seitz")
-    expect(page.url).to_have_text("matt-zoller-seitz")

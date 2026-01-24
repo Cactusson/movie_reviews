@@ -1,0 +1,11 @@
+{% extends "reviews/base.html" %}
+
+{% block title %}{{ author.name }}{% endblock title %}
+
+{% block content %}
+    <h1>{{ author.name }}</h1>
+
+    {% for review in author.reviews.all %}
+        {% include "reviews/_review.html" with review=review link_needed=True first_sentence_only=True %}
+    {% endfor %}
+{% endblock content %}

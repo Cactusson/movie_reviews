@@ -63,7 +63,7 @@ class TestReviewDetail:
         response = client.get(f"/{night_patrol.pk}/")
         return BeautifulSoup(response.content, "html.parser")
 
-    def test_uses_home_page_template(self, client, night_patrol):
+    def test_uses_review_detail_template(self, client, night_patrol):
         response = client.get(f"/{night_patrol.pk}/")
         asserts.assertTemplateUsed(response, "reviews/review_detail.html")
 
@@ -104,3 +104,31 @@ class TestReviewDetail:
         author_url = author.find("a")
         assert author_url is not None
         assert author_url["href"] == night_patrol.author.get_absolute_url()
+
+
+@pytest.mark.django_db
+class TestAuthorDetail:
+    @pytest.fixture
+    def soup(self, client, mzs, night_patrol, king_of_color, sound_of_falling):
+        response = client.get(f"/{mzs.slug}/")
+        return BeautifulSoup(response.content, "html.parser")
+
+    def test_uses_author_detail_template(self, client, mzs):
+        response = client.get(f"/{mzs.slug}/")
+        asserts.assertTemplateUsed(response, "reviews/author_detail.html")
+
+    def test_author_name_is_present_in_title_and_page(self, mzs, soup):
+        assert mzs.name in soup.title.string
+        headline = soup.find("h1")
+        assert headline is not None
+        assert mzs.name in headline.string
+
+    def test_only_reviews_by_author_are_present_on_page(self, mzs, soup):
+        reviews = soup.find_all("div", {"class": "review"})
+        assert len(reviews) == 2
+        titles = []
+        for review in reviews:
+            title = review.find("h2")
+            assert title is not None
+            titles.append(title.string)
+        assert titles == [review.title for review in mzs.reviews.all()]
