@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Page not found &#8211; Roger Ebert</title>
+	<atom:link href="https://www.rogerebert.com/reviews/feed?paged=20000" rel="self" type="application/rss+xml" />
+	<link>https://www.rogerebert.com</link>
+	<description></description>
+	<lastBuildDate>Mon, 26 Jan 2026 08:05:35 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=6.8.2</generator>
+
+<image>
+	<url>https://www.rogerebert.com/wp-content/uploads/2024/07/cropped-favicon-196x196-1-32x32.png</url>
+	<title>Page not found &#8211; Roger Ebert</title>
+	<link>https://www.rogerebert.com</link>
+	<width>32</width>
+	<height>32</height>
+</image>
+</channel>
+</rss>

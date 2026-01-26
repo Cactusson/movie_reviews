@@ -2,6 +2,7 @@ import datetime
 import os
 
 import pytest
+import responses
 from data_provider import DataProvider
 from playwright.sync_api import sync_playwright
 
@@ -60,3 +61,38 @@ def sound_of_falling(db, sheila, test_data):
 @pytest.fixture
 def king_of_color(db, mzs, test_data):
     return create_review(test_data["reviews"]["The King of Color"])
+
+
+@pytest.fixture
+def mocked_rss_feed():
+    with open("tests/fixtures/test_feed_page_1.xml") as file:
+        rss_content_page_1 = file.read()
+    with open("tests/fixtures/test_feed_page_2.xml") as file:
+        rss_content_page_2 = file.read()
+    with open("tests/fixtures/test_feed_empty.xml") as file:
+        rss_content_empty = file.read()
+
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
+        rsps.add(
+            responses.GET,
+            "https://www.rogerebert.com/reviews/feed/?paged=3",
+            body=rss_content_empty,
+            status=200,
+            content_type="application/xml",
+        )
+        rsps.add(
+            responses.GET,
+            "https://www.rogerebert.com/reviews/feed/?paged=2",
+            body=rss_content_page_2,
+            status=200,
+            content_type="application/xml",
+        )
+        rsps.add(
+            responses.GET,
+            "https://www.rogerebert.com/reviews/feed/",
+            body=rss_content_page_1,
+            status=200,
+            content_type="application/xml",
+        )
+
+        yield rsps
