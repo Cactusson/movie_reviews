@@ -73,26 +73,29 @@ def mocked_rss_feed():
         rss_content_empty = file.read()
 
     with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
-        rsps.add(
-            responses.GET,
-            "https://www.rogerebert.com/reviews/feed/?paged=3",
-            body=rss_content_empty,
-            status=200,
-            content_type="application/xml",
-        )
-        rsps.add(
-            responses.GET,
-            "https://www.rogerebert.com/reviews/feed/?paged=2",
-            body=rss_content_page_2,
-            status=200,
-            content_type="application/xml",
-        )
-        rsps.add(
-            responses.GET,
-            "https://www.rogerebert.com/reviews/feed/",
-            body=rss_content_page_1,
-            status=200,
-            content_type="application/xml",
-        )
+        # have to add mocked responses 100 times because otherwise they won't work more than once in one test
+        # is there a better way?
+        for _ in range(100):
+            rsps.add(
+                responses.GET,
+                "https://www.rogerebert.com/reviews/feed/?paged=3",
+                body=rss_content_empty,
+                status=200,
+                content_type="application/xml",
+            )
+            rsps.add(
+                responses.GET,
+                "https://www.rogerebert.com/reviews/feed/?paged=2",
+                body=rss_content_page_2,
+                status=200,
+                content_type="application/xml",
+            )
+            rsps.add(
+                responses.GET,
+                "https://www.rogerebert.com/reviews/feed/",
+                body=rss_content_page_1,
+                status=200,
+                content_type="application/xml",
+            )
 
         yield rsps
