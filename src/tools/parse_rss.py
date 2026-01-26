@@ -7,6 +7,8 @@ from reviews.models import Author, Review
 
 
 def parse_full_rss_feed(url: str) -> list[Review]:
+    if not url.endswith("/"):
+        url += "/"
     new_reviews = []
     page = 1
     while True:

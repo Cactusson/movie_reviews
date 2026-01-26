@@ -3,10 +3,10 @@ import os
 
 import pytest
 import responses
-from data_provider import DataProvider
 from playwright.sync_api import sync_playwright
 
 from reviews.models import Author, Review
+from tests.data_provider import DataProvider
 
 os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 
@@ -24,7 +24,7 @@ def create_review(data):
 
 @pytest.fixture(scope="session")
 def test_data():
-    provider = DataProvider("tests/test_data.json")
+    provider = DataProvider("tests/fixtures/test_data.json")
     return {"reviews": provider.get("reviews")}
 
 
