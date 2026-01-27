@@ -10,6 +10,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--feeds", nargs="+", help="Override default feeds")
+        parser.add_argument(
+            "--init",
+            action="store_true",
+            help="Use when collecting reviews for the first time",
+        )
 
     def get_feeds(self, options):
         # pass --feeds option in tests
@@ -21,4 +26,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         feeds = self.get_feeds(options)
         for feed in feeds:
-            parse_full_rss_feed(feed)
+            if options["init"]:
+                parse_full_rss_feed(feed, ignore_cutoff_date=True)
+            else:
+                parse_full_rss_feed(feed)

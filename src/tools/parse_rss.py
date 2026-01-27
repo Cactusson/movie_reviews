@@ -2,39 +2,46 @@ import datetime
 
 import feedparser
 import requests
+from django.utils import timezone
 
 from reviews.models import Author, Review
 
 
-def parse_full_rss_feed(url: str) -> list[Review]:
+def parse_full_rss_feed(url: str, ignore_cutoff_date: bool = False) -> list[Review]:
     if not url.endswith("/"):
         url += "/"
     new_reviews = []
     page = 1
+
+    cutoff_date = timezone.now() - datetime.timedelta(days=7)
+
     while True:
         entries_from_current_page = parse_one_rss_page(url, page=page)
         if len(entries_from_current_page) == 0:
             return new_reviews
         for entry in entries_from_current_page:
+            assert type(entry.published) is str  # to make mypy happy
+            date = datetime.datetime.strptime(
+                entry.published, "%a, %d %b %Y %H:%M:%S %z"
+            )
+            if not ignore_cutoff_date and date < cutoff_date:
+                return new_reviews
             author = Author.objects.get_or_create(name=entry.author)[0]
             review = Review(
                 title=entry.title,
                 author=author,
                 url=entry.link,
-                date=datetime.datetime.strptime(
-                    entry.published, "%a, %d %b %Y %H:%M:%S %z"
-                ).date(),
+                date=date,
                 content=entry.content,
             )
-            if Review.objects.filter(
+            if not Review.objects.filter(
                 title=review.title,
                 author=review.author,
                 url=review.url,
                 date=review.date,
             ).exists():
-                return new_reviews
-            review.save()
-            new_reviews.append(review)
+                review.save()
+                new_reviews.append(review)
         page += 1
 
 

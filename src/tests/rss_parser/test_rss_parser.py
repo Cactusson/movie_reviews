@@ -39,10 +39,27 @@ class TestRSSParser:
         entries = parse_full_rss_feed("https://www.rogerebert.com/reviews/feed/")
         assert len(entries) == 0
 
-    def test_parser_will_not_add_more_reviews_if_encounters_already_existing_one(
-        self, mocked_rss_feed, sound_of_falling
-    ):
+    def test_parser_will_not_stop_at_duplicate_entry(self, mocked_rss_feed):
+        """
+        Sometimes there are duplicate entries in the RSS feed.
+        At first the parser was configured to stop if it encounters one.
+        This test makes sure the parser's configuration is up to date.
+        """
+        assert Review.objects.count() == 0
+        entries = parse_full_rss_feed(
+            "https://www.rogerebert.com/reviews/feed_with_duplicates/"
+        )
+        assert len(entries) == 2
+        assert Review.objects.count() == 2
+
+    def test_parser_will_ignore_old_entries(self, mocked_rss_feed):
+        """
+        Parser should stop if it encounters an entry a week old
+        (the time period may change in the future)
+        """
+        assert Review.objects.count() == 0
+        entries = parse_full_rss_feed(
+            "https://www.rogerebert.com/reviews/feed_with_old_entries/"
+        )
+        assert len(entries) == 1
         assert Review.objects.count() == 1
-        entries = parse_full_rss_feed("https://www.rogerebert.com/reviews/feed/")
-        assert len(entries) == 16
-        assert Review.objects.count() == 17

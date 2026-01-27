@@ -3,6 +3,7 @@ import os
 
 import pytest
 import responses
+import time_machine
 from playwright.sync_api import sync_playwright
 
 from reviews.models import Author, Review
@@ -71,11 +72,43 @@ def mocked_rss_feed():
         rss_content_page_2 = file.read()
     with open("tests/fixtures/test_feed_empty.xml") as file:
         rss_content_empty = file.read()
+    with open("tests/fixtures/test_feed_with_duplicates.xml") as file:
+        rss_content_with_duplicates = file.read()
+    with open("tests/fixtures/test_feed_with_old_entries.xml") as file:
+        rss_content_with_old_entries = file.read()
 
     with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
         # have to add mocked responses 100 times because otherwise they won't work more than once in one test
         # is there a better way?
         for _ in range(100):
+            rsps.add(
+                responses.GET,
+                "https://www.rogerebert.com/reviews/feed_with_old_entries/?paged=2",
+                body=rss_content_empty,
+                status=200,
+                content_type="application/xml",
+            )
+            rsps.add(
+                responses.GET,
+                "https://www.rogerebert.com/reviews/feed_with_old_entries/",
+                body=rss_content_with_old_entries,
+                status=200,
+                content_type="application/xml",
+            )
+            rsps.add(
+                responses.GET,
+                "https://www.rogerebert.com/reviews/feed_with_duplicates/?paged=2",
+                body=rss_content_empty,
+                status=200,
+                content_type="application/xml",
+            )
+            rsps.add(
+                responses.GET,
+                "https://www.rogerebert.com/reviews/feed_with_duplicates/",
+                body=rss_content_with_duplicates,
+                status=200,
+                content_type="application/xml",
+            )
             rsps.add(
                 responses.GET,
                 "https://www.rogerebert.com/reviews/feed/?paged=3",
@@ -99,3 +132,9 @@ def mocked_rss_feed():
             )
 
         yield rsps
+
+
+@pytest.fixture(autouse=True, scope="session")
+def set_date_to_jan_26_2026():
+    traveller = time_machine.travel(datetime.datetime(2026, 1, 26))
+    traveller.start()

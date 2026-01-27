@@ -14,3 +14,13 @@ class TestCollectReviewsCommand:
             "collect_reviews", "--feeds", "https://www.rogerebert.com/reviews/feed/"
         )
         assert Review.objects.count() == 20
+
+    def test_will_ignore_cutoff_date_if_init_is_passed(self, mocked_rss_feed):
+        assert Review.objects.count() == 0
+        call_command(
+            "collect_reviews",
+            "--init",
+            "--feeds",
+            "https://www.rogerebert.com/reviews/feed_with_old_entries/",
+        )
+        assert Review.objects.count() == 3
