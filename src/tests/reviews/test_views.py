@@ -1,5 +1,3 @@
-import html
-
 import pytest
 from bs4 import BeautifulSoup
 from pytest_django import asserts

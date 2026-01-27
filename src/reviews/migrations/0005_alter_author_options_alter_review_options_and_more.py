@@ -4,32 +4,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('reviews', '0004_review_content'),
+        ("reviews", "0004_review_content"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='author',
-            options={'ordering': ('name',)},
+            name="author",
+            options={"ordering": ("name",)},
         ),
         migrations.AlterModelOptions(
-            name='review',
-            options={'ordering': ('-date',)},
+            name="review",
+            options={"ordering": ("-date",)},
         ),
         migrations.AddField(
-            model_name='author',
-            name='slug',
+            model_name="author",
+            name="slug",
             field=models.SlugField(blank=True, max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='author',
-            name='name',
+            model_name="author",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterUniqueTogether(
-            name='review',
-            unique_together={('title', 'author', 'url', 'date')},
+            name="review",
+            unique_together={("title", "author", "url", "date")},
         ),
     ]

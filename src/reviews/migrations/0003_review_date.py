@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('reviews', '0002_review_url'),
+        ("reviews", "0002_review_url"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='review',
-            name='date',
+            model_name="review",
+            name="date",
             field=models.DateField(default=None),
             preserve_default=False,
         ),
