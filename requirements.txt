@@ -55,6 +55,8 @@ pytest-django==4.11.1
     # via movie-reviews
 pytest-playwright==0.7.2
     # via movie-reviews
+python-decouple==3.8
+    # via movie-reviews
 python-slugify==8.0.4
     # via pytest-playwright
 pyyaml==6.0.3
