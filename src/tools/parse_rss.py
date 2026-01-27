@@ -1,10 +1,24 @@
 import datetime
+import re
 
 import feedparser
 import requests
 from django.utils import timezone
 
 from reviews.models import Author, Review
+
+INDIEWIRE_TITLE_PATTERN = re.compile(r"^‘(.*?)’ Review: ")
+
+
+def extract_title(entry: feedparser.util.FeedParserDict) -> str:
+    assert type(entry.title) is str
+    if (
+        "indiewire" in entry.link
+        and INDIEWIRE_TITLE_PATTERN.search(entry.title) is not None
+    ):
+        return INDIEWIRE_TITLE_PATTERN.search(entry.title).group(1)
+    else:
+        return entry.title
 
 
 def parse_full_rss_feed(url: str, ignore_cutoff_date: bool = False) -> list[Review]:
@@ -27,12 +41,16 @@ def parse_full_rss_feed(url: str, ignore_cutoff_date: bool = False) -> list[Revi
             if not ignore_cutoff_date and date < cutoff_date:
                 return new_reviews
             author = Author.objects.get_or_create(name=entry.author)[0]
+            title = extract_title(entry)
+            content = entry.get("content", None)
+            if content is not None:
+                content = content[0]["value"]
             review = Review(
-                title=entry.title,
+                title=title,
                 author=author,
                 url=entry.link,
                 date=date,
-                content=entry.content,
+                content=content,
             )
             if not Review.objects.filter(
                 title=review.title,

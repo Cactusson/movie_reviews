@@ -24,3 +24,13 @@ class TestCollectReviewsCommand:
             "https://www.rogerebert.com/reviews/feed_with_old_entries/",
         )
         assert Review.objects.count() == 3
+
+    def test_parse_multiple_feeds(self, mocked_rss_feed):
+        assert Review.objects.count() == 0
+        call_command(
+            "collect_reviews",
+            "--feeds",
+            "https://www.rogerebert.com/reviews/feed/",
+            "https://www.indiewire.com/c/criticism/movies/feed/",
+        )
+        assert Review.objects.count() == 32

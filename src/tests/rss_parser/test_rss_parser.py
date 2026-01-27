@@ -63,3 +63,25 @@ class TestRSSParser:
         )
         assert len(entries) == 1
         assert Review.objects.count() == 1
+
+    def test_content_is_optional(self, mocked_rss_feed):
+        entries = parse_full_rss_feed(
+            "https://www.indiewire.com/c/criticism/movies/feed/"
+        )
+        for entry in entries:
+            assert entry.content is None
+
+    def test_parser_will_extract_movie_title_from_indiewire_entry(
+        self, mocked_rss_feed
+    ):
+        """
+        &#8216;The Gallerist&#8217; Review: Natalie Portman Takes Cheap Shots at the Art World in a Schematic, Unfunny Satire
+        to
+        The Gallerist
+        """
+        entries = parse_full_rss_feed(
+            "https://www.indiewire.com/c/criticism/movies/feed/"
+        )
+        assert len(entries) == 12
+        assert entries[0].title == "The Gallerist"
+        assert entries[1].title == "Bedford Park"

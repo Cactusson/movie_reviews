@@ -76,11 +76,27 @@ def mocked_rss_feed():
         rss_content_with_duplicates = file.read()
     with open("tests/fixtures/test_feed_with_old_entries.xml") as file:
         rss_content_with_old_entries = file.read()
+    with open("tests/fixtures/test_feed_indiewire.xml") as file:
+        rss_content_indiewire = file.read()
 
     with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
         # have to add mocked responses 100 times because otherwise they won't work more than once in one test
         # is there a better way?
         for _ in range(100):
+            rsps.add(
+                responses.GET,
+                "https://www.indiewire.com/c/criticism/movies/feed/?paged=2",
+                body=rss_content_empty,
+                status=200,
+                content_type="application/xml",
+            )
+            rsps.add(
+                responses.GET,
+                "https://www.indiewire.com/c/criticism/movies/feed/",
+                body=rss_content_indiewire,
+                status=200,
+                content_type="application/xml",
+            )
             rsps.add(
                 responses.GET,
                 "https://www.rogerebert.com/reviews/feed_with_old_entries/?paged=2",
