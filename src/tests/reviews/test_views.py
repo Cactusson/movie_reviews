@@ -160,7 +160,7 @@ class TestAuthorList:
             assert name is not None
             assert name.string in [mzs.name, sheila.name]
 
-    def test_authors_are_ordered_by_name(self, soup, mzs, sheila):
+    def test_authors_are_ordered_by_last_name(self, soup, mzs, sheila):
         list_of_authors = soup.find("ul", {"class": "author-list"})
         assert list_of_authors is not None
         assert list_of_authors.find_all("li")[0].find("a").string == sheila.name
@@ -173,3 +173,61 @@ class TestAuthorList:
             name = author.find("a").string
             counter = author.find("span", {"class": "counter"}).string
             assert Author.objects.get(name=name).reviews.count() == int(counter)
+
+
+@pytest.mark.django_db
+class TestSearch:
+    @pytest.fixture(autouse=True)
+    def populate_db(self, mzs, sheila, night_patrol, king_of_color, sound_of_falling):
+        pass
+
+    def soup(self, client, search_term=""):
+        response = client.get(f"/search/?q={search_term}")
+        return BeautifulSoup(response.content, "html.parser")
+
+    def test_uses_search_results_template(self, client):
+        response = client.get("/search/")
+        asserts.assertTemplateUsed(response, "reviews/search_results.html")
+
+    def test_no_matches_for_search_term(self, client):
+        soup = self.soup(client, search_term="hello")
+        assert soup.find("p", {"data-testid": "no-search-results"}) is not None
+
+    def test_no_matches_for_empty_search_term(self, client):
+        soup = self.soup(client, search_term="")
+        assert soup.find("p", {"data-testid": "no-search-results"}) is not None
+
+    def test_one_match_for_authors_none_for_titles(self, client):
+        soup = self.soup(client, search_term="Seitz")
+        assert soup.find("p", string="Found in authors: 1") is not None
+        assert soup.find("p", string="Found in titles: 0") is None
+
+    def test_found_authors_are_listed_and_ordered_by_last_name(
+        self, client, mzs, sheila
+    ):
+        soup = self.soup(client, search_term="ma")
+        assert soup.find("p", string="Found in authors: 2") is not None
+        list_of_authors = soup.find("ul", {"class": "author-list"})
+        assert list_of_authors is not None
+        assert len(list_of_authors.find_all("li")) == 2
+        for author in list_of_authors.find_all("li"):
+            name = author.find("a")
+            assert name is not None
+            assert name.string in [mzs.name, sheila.name]
+        listed_authors = [
+            author.find("a").string for author in list_of_authors.find_all("li")
+        ]
+        assert listed_authors == sorted(
+            listed_authors, key=lambda author: author.split()[-1]
+        )
+
+    def test_found_reviews_are_listed(self, client, sound_of_falling, king_of_color):
+        soup = self.soup(client, search_term="ing")
+        assert soup.find("p", string="Found in titles: 2") is not None
+        reviews = soup.find_all("div", {"class": "review"})
+        assert len(reviews) == 2
+
+        for review in reviews:
+            title = review.find("h2")
+            assert title is not None
+            assert title.string in [sound_of_falling.title, king_of_color.title]

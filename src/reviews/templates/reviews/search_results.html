@@ -1,0 +1,27 @@
+{% extends "reviews/base.html" %}
+
+{% block title %}Search results for `{{ search_term }}`{% endblock %}
+
+{% block content %}
+    <h1>Search results for `{{ search_term }}`</h1>
+
+    {% if found_in_authors or found_in_titles %}
+        {% if found_in_authors %}
+            <p>Found in authors: {{ found_in_authors_count }}</p>
+            <ul class="author-list">
+                {% for author in found_in_authors %}
+                    <li><a href="{% url "reviews:author_detail" author.slug %}">{{ author.name }}</a><span class="counter">{{ author.reviews_counter }}</span></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if found_in_titles %}
+            <p>Found in titles: {{ found_in_titles_count }}</p>
+            {% for review in found_in_titles %}
+                {% include "reviews/_review.html" with review=review link_needed=True first_sentence_only=True %}
+            {% endfor %}
+        {% endif %}
+    {% else %}
+        <p data-testid="no-search-results">There were no matches for your search term.</p>
+    {% endif %}
+{% endblock content %}

@@ -10,6 +10,12 @@
         <ul>
             <li><a href="{% url "reviews:home_page" %}">Home</a></li>
             <li><a href="{% url "reviews:author_list" %}">Authors</a></li>
+            <li class="search">
+                <form type="get" action="{% url 'reviews:search' %}">
+                    <label for="search_input">Search</label>
+                    <input id="search_input" type="text" name="q" autocomplete="off"{% if q %} value="{{ q }}"{% endif %}>
+                </form>
+            </li>
         </ul>
     </nav>
     {% block content %}{% endblock %}

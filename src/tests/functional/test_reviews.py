@@ -18,8 +18,8 @@ def test_navigating_between_reviews(
     expect(page).to_have_title(re.compile(r"reviews", re.IGNORECASE))
 
     # There are currently three reviews published
+    expect(page.locator("div.review")).to_have_count(3)
     reviews = page.locator("div.review").all()
-    assert len(reviews) == 3
 
     # The most recent one (the first on the page) has title `Night Patrol`
     first_review = reviews[0]
@@ -71,3 +71,61 @@ def test_navigating_between_reviews(
 
     # She is back at the home page
     expect(page).to_have_title(re.compile(r"reviews", re.IGNORECASE))
+
+
+def test_search_functionality(
+    live_server, page, king_of_color, sound_of_falling, night_patrol
+):
+    home_page = HomePage(page)
+
+    # Alice is once again on the home page
+    home_page.navigate(live_server)
+
+    # She notices there is a search field
+    search_field = page.get_by_role("textbox", name="Search")
+    expect(search_field).to_be_visible()
+
+    # She's just watched a movie called `The King of Color` and is curious to know
+    # if there are any reviews for it on the website
+    search_field.fill("king of color")
+    search_field.press("Enter")
+
+    # Alice is redirected to a new page with search results
+    expect(page).to_have_title(re.compile(r"Search results for"))
+
+    # The page says there was one review found
+    expect(page.get_by_text("Found in titles: 1")).to_be_visible()
+
+    # And the review is listed on the page
+    expect(page.locator("div.review")).to_be_visible()
+    expect(page.locator("div.review")).to_have_count(1)
+
+    # Sure enough, the review's title is `The King of Color`
+    expect(
+        page.locator("div.review").get_by_text("The King of Color", exact=True)
+    ).to_be_visible()
+
+    # Alice clicks on the review link
+    page.locator("div.review").get_by_role("link", name="The King of Color").click()
+
+    # She is redirected to this review's page
+    expect(page).to_have_title("The King of Color")
+
+    # Alice notices that the search field is also available on this page
+    search_field = page.get_by_role("textbox", name="Search")
+    expect(search_field).to_be_visible()
+
+    # Alice is a big fan of the movie critic Sheila O'Malley and she wants to find out
+    # if this websites features some of her reviews
+    search_field.fill("sheila")
+    search_field.press("Enter")
+
+    # Alice is redirected to the search results page once again
+    expect(page).to_have_title(re.compile(r"Search results for"))
+
+    # And yes, there is a critic with the name of Sheila O'Malley
+    expect(page.get_by_text("Found in authors: 1")).to_be_visible()
+    author_list = page.locator("ul.author-list")
+    expect(author_list).to_be_visible()
+    expect(author_list.get_by_role("listitem", name="Sheila O'Malley"))
+    expect(author_list.get_by_role("listitem")).to_have_count(1)
