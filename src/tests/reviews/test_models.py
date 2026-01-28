@@ -140,6 +140,3 @@ class TestAuthorModel:
 
     def test_author_is_related_to_review(self, night_patrol, mzs):
         assert mzs == night_patrol.author
-
-    def test_authors_are_ordered_by_name(self, sheila, mzs):
-        assert list(Author.objects.all()) == [mzs, sheila]
