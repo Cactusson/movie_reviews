@@ -6,6 +6,12 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
+    <nav>
+        <ul>
+            <li><a href="{% url "reviews:home_page" %}">Home</a></li>
+            <li><a href="{% url "reviews:author_list" %}">Authors</a></li>
+        </ul>
+    </nav>
     {% block content %}{% endblock %}
 </body>
 </html>

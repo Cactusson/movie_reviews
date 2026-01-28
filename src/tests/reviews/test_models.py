@@ -140,3 +140,7 @@ class TestAuthorModel:
 
     def test_author_is_related_to_review(self, night_patrol, mzs):
         assert mzs == night_patrol.author
+
+    def test_last_name(self, mzs, sheila):
+        assert mzs.last_name == "Seitz"
+        assert sheila.last_name == "O'Malley"

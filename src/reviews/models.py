@@ -62,3 +62,7 @@ class Author(models.Model):
 
     def get_absolute_url(self):
         return reverse("reviews:author_detail", kwargs={"slug": self.slug})
+
+    @property
+    def last_name(self):
+        return self.name.split()[-1]

@@ -40,3 +40,34 @@ def test_navigating_between_reviews(
 
     # She is redirected to the page containing all the reviews by this author
     expect(page).to_have_title("Matt Zoller Seitz")
+    for review in page.locator("div.review").all():
+        expect(review.get_by_text("Matt Zoller Seitz")).to_be_visible()
+
+    # Alice notices there is a navigation menu at the top of the page
+    expect(page.get_by_role("navigation")).to_be_visible()
+
+    # There is a link to the home page
+    expect(
+        page.get_by_role("navigation").get_by_role("link", name="Home")
+    ).to_be_visible()
+
+    # And a link which says `Authors`
+    expect(
+        page.get_by_role("navigation").get_by_role("link", name="Authors")
+    ).to_be_visible()
+
+    # Alice clicks on the `Authors`
+    page.get_by_role("navigation").get_by_role("link", name="Authors").click()
+
+    # She is redirected to the page with all the authors
+    expect(page).to_have_title("Authors")
+    expect(page.locator("ul.author-list")).to_be_visible()
+
+    # The home page link is still visible and Alice clicks on it
+    expect(
+        page.get_by_role("navigation").get_by_role("link", name="Home")
+    ).to_be_visible()
+    page.get_by_role("navigation").get_by_role("link", name="Home").click()
+
+    # She is back at the home page
+    expect(page).to_have_title(re.compile(r"reviews", re.IGNORECASE))

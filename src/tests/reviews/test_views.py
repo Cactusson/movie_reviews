@@ -2,6 +2,8 @@ import pytest
 from bs4 import BeautifulSoup
 from pytest_django import asserts
 
+from reviews.models import Author
+
 
 @pytest.mark.django_db
 class TestHomePage:
@@ -119,7 +121,7 @@ class TestAuthorDetail:
         assert mzs.name in soup.title.string
         headline = soup.find("h1")
         assert headline is not None
-        assert mzs.name in headline.string
+        assert mzs.name in headline.get_text()
 
     def test_only_reviews_by_author_are_present_on_page(self, mzs, soup):
         reviews = soup.find_all("div", {"class": "review"})
@@ -130,3 +132,44 @@ class TestAuthorDetail:
             assert title is not None
             titles.append(title.string)
         assert titles == [review.title for review in mzs.reviews.all()]
+
+    def test_counter_of_reviews_is_present(self, mzs, soup):
+        headline = soup.find("h1")
+        assert headline is not None
+        counter = headline.find("span")
+        assert str(mzs.reviews.count()) in counter.string
+
+
+@pytest.mark.django_db
+class TestAuthorList:
+    @pytest.fixture()
+    def soup(self, client, mzs, sheila, night_patrol, king_of_color, sound_of_falling):
+        response = client.get("/authors/")
+        return BeautifulSoup(response.content, "html.parser")
+
+    def test_uses_author_list_template(self, client):
+        response = client.get("/authors/")
+        asserts.assertTemplateUsed(response, "reviews/author_list.html")
+
+    def test_all_authors_are_listed(self, soup, mzs, sheila):
+        list_of_authors = soup.find("ul", {"class": "author-list"})
+        assert list_of_authors is not None
+        assert len(list_of_authors.find_all("li")) == 2
+        for author in list_of_authors.find_all("li"):
+            name = author.find("a")
+            assert name is not None
+            assert name.string in [mzs.name, sheila.name]
+
+    def test_authors_are_ordered_by_name(self, soup, mzs, sheila):
+        list_of_authors = soup.find("ul", {"class": "author-list"})
+        assert list_of_authors is not None
+        assert list_of_authors.find_all("li")[0].find("a").string == sheila.name
+        assert list_of_authors.find_all("li")[1].find("a").string == mzs.name
+
+    def test_each_author_has_counter_of_reviews(self, soup):
+        list_of_authors = soup.find("ul", {"class": "author-list"})
+        assert list_of_authors is not None
+        for author in list_of_authors.find_all("li"):
+            name = author.find("a").string
+            counter = author.find("span", {"class": "counter"}).string
+            assert Author.objects.get(name=name).reviews.count() == int(counter)

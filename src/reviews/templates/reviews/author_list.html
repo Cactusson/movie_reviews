@@ -1,0 +1,13 @@
+{% extends "reviews/base.html" %}
+
+{% block title %}Authors{% endblock %}
+
+{% block content %}
+    <h1>Authors</h1>
+
+    <ul class="author-list">
+        {% for author in authors %}
+            <li><a href="{% url "reviews:author_detail" author.slug %}">{{ author.name }}</a><span class="counter">{{ author.reviews_counter }}</span></li>
+        {% endfor %}
+    </ul>
+{% endblock content %}
