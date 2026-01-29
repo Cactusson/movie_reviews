@@ -1,4 +1,5 @@
 import time
+from unittest.mock import patch
 
 import pytest
 from django.core.management import call_command
@@ -8,33 +9,34 @@ from reviews.models import Review, TaskControl
 
 @pytest.mark.django_db
 class TestCollectReviewsCommand:
+    @patch("reviews.management.commands.collect_reviews.read_feeds_from_json_file")
     def test_20_new_reviews_in_database_after_command_is_executed(
-        self, mocked_rss_feed
+        self, mock_function, mocked_rss_feed
     ):
         assert Review.objects.count() == 0
-        call_command(
-            "collect_reviews", "--feeds", "https://www.rogerebert.com/reviews/feed/"
-        )
+        mock_function.return_value = ["https://www.rogerebert.com/reviews/feed/"]
+        call_command("collect_reviews")
         assert Review.objects.count() == 20
 
-    def test_will_ignore_cutoff_date_if_init_is_passed(self, mocked_rss_feed):
+    @patch("reviews.management.commands.collect_reviews.read_feeds_from_json_file")
+    def test_will_ignore_cutoff_date_if_init_is_passed(
+        self, mock_function, mocked_rss_feed
+    ):
         assert Review.objects.count() == 0
-        call_command(
-            "collect_reviews",
-            "--init",
-            "--feeds",
-            "https://www.rogerebert.com/reviews/feed_with_old_entries/",
-        )
+        mock_function.return_value = [
+            "https://www.rogerebert.com/reviews/feed_with_old_entries/"
+        ]
+        call_command("collect_reviews", "--init")
         assert Review.objects.count() == 3
 
-    def test_parse_multiple_feeds(self, mocked_rss_feed):
+    @patch("reviews.management.commands.collect_reviews.read_feeds_from_json_file")
+    def test_parse_multiple_feeds(self, mock_function, mocked_rss_feed):
         assert Review.objects.count() == 0
-        call_command(
-            "collect_reviews",
-            "--feeds",
+        mock_function.return_value = [
             "https://www.rogerebert.com/reviews/feed/",
             "https://www.indiewire.com/c/criticism/movies/feed/",
-        )
+        ]
+        call_command("collect_reviews")
         assert Review.objects.count() == 32
 
 

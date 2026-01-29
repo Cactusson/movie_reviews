@@ -1,4 +1,5 @@
 import datetime
+import json
 import re
 
 import feedparser
@@ -8,6 +9,11 @@ from django.utils import timezone
 from reviews.models import Author, Review
 
 INDIEWIRE_TITLE_PATTERN = re.compile(r"^‘(.*?)’ Review: ")
+
+
+def read_feeds_from_json_file():
+    with open("config/feeds.json") as file:
+        return json.load(file)
 
 
 def extract_title(entry: feedparser.util.FeedParserDict) -> str:
