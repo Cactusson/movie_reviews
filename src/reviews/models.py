@@ -70,7 +70,7 @@ class Author(models.Model):
 
 
 class TaskControl(models.Model):
-    is_enabled = models.BooleanField(default=True)
+    is_enabled = models.BooleanField(default=False)
     enabled_at = models.DateTimeField(null=True, blank=True)
     disabled_at = models.DateTimeField(null=True, blank=True)
 

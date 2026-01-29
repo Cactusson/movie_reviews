@@ -39,6 +39,7 @@ def parse_full_rss_feed(url: str, ignore_cutoff_date: bool = False) -> list[Revi
         entries_from_current_page = parse_one_rss_page(url, page=page)
         if len(entries_from_current_page) == 0:
             return new_reviews
+
         for entry in entries_from_current_page:
             assert type(entry.published) is str  # to make mypy happy
             date = datetime.datetime.strptime(
