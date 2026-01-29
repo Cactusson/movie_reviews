@@ -3,6 +3,7 @@ import re
 from bs4 import BeautifulSoup
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.text import slugify
 
 
@@ -66,3 +67,30 @@ class Author(models.Model):
     @property
     def last_name(self):
         return self.name.split()[-1]
+
+
+class TaskControl(models.Model):
+    is_enabled = models.BooleanField(default=True)
+    enabled_at = models.DateTimeField(null=True, blank=True)
+    disabled_at = models.DateTimeField(null=True, blank=True)
+
+    @classmethod
+    def is_task_enabled(cls):
+        obj = cls.objects.get_or_create(pk=1)[0]
+        return obj.is_enabled
+
+    @classmethod
+    def enable_tasks(cls):
+        obj = cls.objects.get_or_create(pk=1)[0]
+        if not obj.is_enabled:
+            obj.is_enabled = True
+            obj.enabled_at = timezone.now()
+            obj.save()
+
+    @classmethod
+    def disable_tasks(cls):
+        obj = cls.objects.get_or_create(pk=1)[0]
+        if obj.is_enabled:
+            obj.is_enabled = False
+            obj.disabled_at = timezone.now()
+            obj.save()
