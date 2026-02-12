@@ -4,6 +4,7 @@ import os
 import pytest
 import responses
 import time_machine
+from django.db import connections
 from playwright.sync_api import sync_playwright
 
 from reviews.models import Author, Review
@@ -21,6 +22,13 @@ def create_review(data):
         date=datetime.date.fromisoformat(data["date"]),
         content=data.get("content", None),
     )
+
+
+@pytest.fixture()
+def close_db_connections():
+    yield
+    for conn in connections.all():
+        conn.close()
 
 
 @pytest.fixture(scope="session")

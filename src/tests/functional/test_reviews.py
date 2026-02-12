@@ -6,7 +6,12 @@ from .pages.home_page import HomePage
 
 
 def test_navigating_between_reviews(
-    live_server, page, king_of_color, sound_of_falling, night_patrol
+    live_server,
+    page,
+    close_db_connections,
+    king_of_color,
+    sound_of_falling,
+    night_patrol,
 ):
     home_page = HomePage(page)
 
@@ -74,7 +79,12 @@ def test_navigating_between_reviews(
 
 
 def test_search_functionality(
-    live_server, page, king_of_color, sound_of_falling, night_patrol
+    live_server,
+    page,
+    close_db_connections,
+    king_of_color,
+    sound_of_falling,
+    night_patrol,
 ):
     home_page = HomePage(page)
 

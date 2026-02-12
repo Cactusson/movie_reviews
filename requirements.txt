@@ -66,6 +66,10 @@ pre-commit==4.5.1
     # via movie-reviews
 prompt-toolkit==3.0.52
     # via click-repl
+psycopg==3.3.2
+    # via movie-reviews
+psycopg-binary==3.3.2 ; implementation_name != 'pypy'
+    # via psycopg
 pyee==13.0.0
     # via playwright
 pygments==2.19.2
@@ -117,6 +121,7 @@ tzdata==2025.3
     # via
     #   django
     #   kombu
+    #   psycopg
     #   tzlocal
 tzlocal==5.3.1
     # via celery
