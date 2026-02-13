@@ -5,13 +5,14 @@ import pytest
 from django.core.management import call_command
 
 from reviews.models import Review, TaskControl
+from reviews.parsers import IndieWireParser, RogerEbertParser
 
 
 @pytest.mark.django_db
 class TestCollectReviewsCommand:
     @patch(
-        "reviews.management.commands.collect_reviews.read_feeds_from_json_file",
-        return_value=["https://www.rogerebert.com/reviews/feed/"],
+        "reviews.parsers.collect_parsers",
+        return_value=[("https://www.rogerebert.com/reviews/feed/", RogerEbertParser)],
     )
     def test_20_new_reviews_in_database_after_command_is_executed(
         self, mocked_function, mocked_rss_feed
@@ -21,8 +22,13 @@ class TestCollectReviewsCommand:
         assert Review.objects.count() == 20
 
     @patch(
-        "reviews.management.commands.collect_reviews.read_feeds_from_json_file",
-        return_value=["https://www.rogerebert.com/reviews/feed_with_old_entries/"],
+        "reviews.parsers.collect_parsers",
+        return_value=[
+            (
+                "https://www.rogerebert.com/reviews/feed_with_old_entries/",
+                RogerEbertParser,
+            )
+        ],
     )
     def test_will_ignore_cutoff_date_if_init_is_passed(
         self, mocked_function, mocked_rss_feed
@@ -32,10 +38,10 @@ class TestCollectReviewsCommand:
         assert Review.objects.count() == 3
 
     @patch(
-        "reviews.management.commands.collect_reviews.read_feeds_from_json_file",
+        "reviews.parsers.collect_parsers",
         return_value=[
-            "https://www.rogerebert.com/reviews/feed/",
-            "https://www.indiewire.com/c/criticism/movies/feed/",
+            ("https://www.rogerebert.com/reviews/feed/", RogerEbertParser),
+            ("https://www.indiewire.com/c/criticism/movies/feed/", IndieWireParser),
         ],
     )
     def test_parse_multiple_feeds(self, mocked_function, mocked_rss_feed):

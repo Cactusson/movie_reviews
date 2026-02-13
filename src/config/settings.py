@@ -122,3 +122,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+RSS_PARSERS = {
+    "https://www.rogerebert.com/reviews/feed/": "RogerEbertParser",
+    "https://www.indiewire.com/c/criticism/movies/feed/": "IndieWireParser",
+}

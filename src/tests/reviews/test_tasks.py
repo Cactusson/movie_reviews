@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 
 from reviews.models import Review, TaskControl
+from reviews.parsers import IndieWireParser, RogerEbertParser
 from reviews.tasks import collect_new_reviews
 
 
@@ -15,8 +16,8 @@ class TestCollectNewReviews:
         TaskControl.objects.all().delete()
 
     @patch(
-        "reviews.tasks.read_feeds_from_json_file",
-        return_value=["https://www.rogerebert.com/reviews/feed/"],
+        "reviews.parsers.collect_parsers",
+        return_value=[("https://www.rogerebert.com/reviews/feed/", RogerEbertParser)],
     )
     def test_20_new_reviews_in_database_after_task_is_executed(
         self, mocked_function, mocked_rss_feed
@@ -27,10 +28,10 @@ class TestCollectNewReviews:
         assert Review.objects.count() == 20
 
     @patch(
-        "reviews.tasks.read_feeds_from_json_file",
+        "reviews.parsers.collect_parsers",
         return_value=[
-            "https://www.rogerebert.com/reviews/feed/",
-            "https://www.indiewire.com/c/criticism/movies/feed/",
+            ("https://www.rogerebert.com/reviews/feed/", RogerEbertParser),
+            ("https://www.indiewire.com/c/criticism/movies/feed/", IndieWireParser),
         ],
     )
     def test_task_does_not_add_more_reviews_on_second_run(
@@ -44,8 +45,8 @@ class TestCollectNewReviews:
         assert Review.objects.count() == 32
 
     @patch(
-        "reviews.tasks.read_feeds_from_json_file",
-        return_value=["https://www.rogerebert.com/reviews/feed/"],
+        "reviews.parsers.collect_parsers",
+        return_value=[("https://www.rogerebert.com/reviews/feed/", RogerEbertParser)],
     )
     def test_task_does_nothing_if_task_control_is_disabled(
         self, mocked_function, mocked_rss_feed

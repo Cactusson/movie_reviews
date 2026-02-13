@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from tools.parse_rss import parse_full_rss_feed, read_feeds_from_json_file
+from reviews.parsers import collect_movies_from_feeds
 
 
 class Command(BaseCommand):
@@ -14,9 +14,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        feeds = read_feeds_from_json_file()
-        for feed in feeds:
-            if options["init"]:
-                parse_full_rss_feed(feed, ignore_cutoff_date=True)
-            else:
-                parse_full_rss_feed(feed)
+        if options["init"]:
+            collect_movies_from_feeds(ignore_cutoff_date=True)
+        else:
+            collect_movies_from_feeds()

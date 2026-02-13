@@ -4,7 +4,7 @@ from celery import shared_task
 from django.utils import timezone
 
 from reviews.models import TaskControl
-from tools.parse_rss import parse_full_rss_feed, read_feeds_from_json_file
+from reviews.parsers import collect_movies_from_feeds
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +22,7 @@ def collect_new_reviews():
     try:
         logger.info("Starting task execution")
 
-        feeds = read_feeds_from_json_file()
-        for feed in feeds:
-            new_reviews = parse_full_rss_feed(feed)
+        new_reviews = collect_movies_from_feeds()
 
         logger.info(
             f"Task completed successfully. New reviews created: {len(new_reviews)}"
