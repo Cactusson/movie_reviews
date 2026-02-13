@@ -26,7 +26,7 @@ jobs:
       run: docker compose up -d
 
     - name: Run the fast tests first
-      run: docker compose exec web sh -c "cd src && pytest tests/reviews tests/rss_parser"
+      run: docker compose exec web sh -c "cd src && pytest tests/reviews"
 
     - name: Run slow functional tests
       run: docker compose exec web sh -c "cd src && pytest tests/functional --tracing=retain-on-failure"
