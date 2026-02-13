@@ -111,7 +111,7 @@ class TestReviewModel:
     def test_first_sentence_of_content(self, night_patrol):
         assert (
             night_patrol.first_sentence
-            == "Writer-director Ryan Prows‘ “Night Patrol,” a cop corruption thriller that’s also a vampire movie, has a sprawling cast, but focuses on four characters."
+            == "Writer-director Ryan Prows‘ “Night Patrol,” a cop corruption thriller that’s also a vampire movie, has a sprawling cast, but focuses on four characters. There’s Ethan Hawkins (Justin Long), the son..."
         )
 
 
