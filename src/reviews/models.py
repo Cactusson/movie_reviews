@@ -1,5 +1,3 @@
-import re
-
 from bs4 import BeautifulSoup
 from django.db import models
 from django.urls import reverse
@@ -38,11 +36,9 @@ class Review(models.Model):
     def first_sentence(self):
         if self.content is None:
             return None
-        content = BeautifulSoup(self.content, "html.parser").get_text()
-        match = re.match(r"^.*?[.!?](?:\s|$)", content)
-        if match:
-            return match.group(0).strip()
-        return content.strip()
+        text = BeautifulSoup(self.content, "html.parser").get_text()[:200].rstrip()
+        last_space_index = text.rfind(" ")
+        return text[:last_space_index] + "..."
 
 
 class Author(models.Model):

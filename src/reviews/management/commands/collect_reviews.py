@@ -15,6 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options["init"]:
-            collect_movies_from_feeds(ignore_cutoff_date=True)
+            new_reviews = collect_movies_from_feeds(ignore_cutoff_date=True)
         else:
-            collect_movies_from_feeds()
+            new_reviews = collect_movies_from_feeds()
+        self.stdout.write(f"New reviews added: {len(new_reviews)}")
