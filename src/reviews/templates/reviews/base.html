@@ -10,6 +10,28 @@
         <ul>
             <li><a href="{% url "reviews:home_page" %}">Home</a></li>
             <li><a href="{% url "reviews:author_list" %}">Authors</a></li>
+            {% if user.is_authenticated %}
+                <li><strong>{{ user.email }}</strong></li>
+                <form method="POST" action="{% url "accounts:logout" %}">
+                {% csrf_token %}
+                    <button id="id_logout" class="btn btn-outline-secondary" type="submit">Log Out</button>
+                </form>
+                {% else %}
+                <form method="POST" action="{% url "accounts:send_login_email" %}">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <label class="navbar-text me-2" for="id_email_input">
+                        Enter your email to log in
+                        </label>
+                        <input
+                        id="id_email_input"
+                        name="email"
+                        class="form-control"
+                        placeholder="your@email.com"
+                        />
+                    </div>
+                </form>
+            {% endif %}
             <li class="search">
                 <form type="get" action="{% url 'reviews:search' %}">
                     <label for="search_input">Search</label>
@@ -18,6 +40,17 @@
             </li>
         </ul>
     </nav>
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.level_tag == 'success' %}
+            <div class="alert alert-success">{{ message }}</div>
+            {% else %}
+            <div class="alert alert-warning">{{ message }}</div>
+            {% endif %}
+        {% endfor %}
+      {% endif %}
+
     {% block content %}{% endblock %}
 </body>
 </html>
