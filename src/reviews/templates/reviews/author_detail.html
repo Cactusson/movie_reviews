@@ -5,7 +5,25 @@
 {% block content %}
     <h1>{{ author.name }} <span>{{ author.reviews.count }}</span></h1>
 
-    {% for review in author.reviews.all %}
+    {% for review in page_obj %}
         {% include "reviews/_review.html" with review=review link_needed=True first_sentence_only=True %}
     {% endfor %}
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="{{ author.get_absolute_url }}?page=1">&laquo; first</a>
+                <a href="{{ author.get_absolute_url }}?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="{{ author.get_absolute_url }}?page={{ page_obj.next_page_number }}">next</a>
+                <a href="{{ author.get_absolute_url }}?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
 {% endblock content %}

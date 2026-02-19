@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.core.paginator import Paginator
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, render
 
@@ -5,7 +7,11 @@ from reviews.models import Author, Review
 
 
 def home_page(request):
-    context = {"reviews": Review.objects.all()}
+    reviews = Review.objects.all()
+    paginator = Paginator(reviews, settings.REVIEWS_PER_PAGE)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {"page_obj": page_obj}
     return render(request, "reviews/home_page.html", context)
 
 
@@ -24,7 +30,11 @@ def author_list(request):
 
 def author_detail(request, slug):
     author = get_object_or_404(Author, slug=slug)
-    context = {"author": author}
+    reviews = author.reviews.all()
+    paginator = Paginator(reviews, settings.REVIEWS_PER_PAGE)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {"author": author, "page_obj": page_obj}
     return render(request, "reviews/author_detail.html", context)
 
 

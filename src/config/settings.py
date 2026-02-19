@@ -137,6 +137,8 @@ EMAIL_USE_TLS = True
 
 CELERY_BROKER_URL = "amqp://guest:guest@rabbitmq:5672//"
 
+REVIEWS_PER_PAGE = 30
+
 RSS_PARSERS = {
     "https://www.rogerebert.com/reviews/feed/": "RogerEbertParser",
     "https://www.indiewire.com/c/criticism/movies/feed/": "IndieWireParser",

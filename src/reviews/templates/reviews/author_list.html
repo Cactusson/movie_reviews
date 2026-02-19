@@ -7,7 +7,7 @@
 
     <ul class="author-list">
         {% for author in authors %}
-            <li><a href="{% url "reviews:author_detail" author.slug %}">{{ author.name }}</a><span class="counter">{{ author.reviews_counter }}</span></li>
+            <li><a href="{{ author.get_absolute_url }}">{{ author.name }}</a><span class="counter">{{ author.reviews_counter }}</span></li>
         {% endfor %}
     </ul>
 {% endblock content %}
