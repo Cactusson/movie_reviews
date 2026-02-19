@@ -14,15 +14,75 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+  rabbitmq:
+    image: rabbitmq:3.13.1-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  celery_worker:
+    build:
+      context: .
+      dockerfile: docker/celery/Dockerfile
+    container_name: celery_worker
+    env_file:
+      - .env
+    working_dir: /app/src
+    command: celery -A config worker --loglevel=info
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      rabbitmq:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD", "celery", "-A", "config", "inspect", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  celery_beat:
+    build:
+      context: .
+      dockerfile: docker/celery/Dockerfile
+    container_name: celery_beat
+    env_file:
+      - .env
+    working_dir: /app/src
+    command: celery -A config beat --loglevel=info
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      rabbitmq:
+        condition: service_healthy
+        restart: true
+      celery_worker:
+        condition: service_healthy
+        restart: true
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
     container_name: web
+    env_file:
+      - .env
     ports:
       - "8000:8000"
     volumes:
       - .:/app
     depends_on:
       db:
+        condition: service_healthy
+        restart: true
+      rabbitmq:
         condition: service_healthy
         restart: true
 

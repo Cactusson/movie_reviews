@@ -26,4 +26,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["./entrypoint.sh"]
+CMD ["./docker/web/entrypoint.sh"]

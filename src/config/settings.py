@@ -135,6 +135,8 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = config("EMAIL_PORT")
 EMAIL_USE_TLS = True
 
+CELERY_BROKER_URL = "amqp://guest:guest@rabbitmq:5672//"
+
 RSS_PARSERS = {
     "https://www.rogerebert.com/reviews/feed/": "RogerEbertParser",
     "https://www.indiewire.com/c/criticism/movies/feed/": "IndieWireParser",
