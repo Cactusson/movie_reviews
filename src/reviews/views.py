@@ -1,13 +1,17 @@
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Count
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from reviews.models import Author, Review
 
 
 def home_page(request):
-    reviews = Review.objects.all()
+    if request.user.is_authenticated and request.user.follows.count() > 0:
+        reviews = Review.objects.filter(author__in=request.user.follows.all())
+    else:
+        reviews = Review.objects.all()
     paginator = Paginator(reviews, settings.REVIEWS_PER_PAGE)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -57,3 +61,17 @@ def search(request):
         "found_in_titles_count": found_in_titles.count(),
     }
     return render(request, "reviews/search_results.html", context)
+
+
+@login_required
+def author_follow(request, slug):
+    author = get_object_or_404(Author, slug=slug)
+    author.followers.add(request.user)
+    return redirect(author.get_absolute_url())
+
+
+@login_required
+def author_unfollow(request, slug):
+    author = get_object_or_404(Author, slug=slug)
+    author.followers.remove(request.user)
+    return redirect(author.get_absolute_url())

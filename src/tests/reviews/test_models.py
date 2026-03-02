@@ -144,3 +144,20 @@ class TestAuthorModel:
     def test_last_name(self, mzs, sheila):
         assert mzs.last_name == "Seitz"
         assert sheila.last_name == "O'Malley"
+
+    def test_user_is_not_following_any_authors_by_default(self, first_user):
+        assert first_user.follows.count() == 0
+
+    def test_user_can_follow_author(self, mzs, first_user):
+        mzs.follow(first_user)
+        assert first_user in mzs.followers.all()
+        assert mzs in first_user.follows.all()
+
+    def test_user_can_unfollow_author(self, mzs, first_user):
+        mzs.follow(first_user)
+        mzs.unfollow(first_user)
+        assert first_user not in mzs.followers.all()
+        assert mzs not in first_user.follows.all()
+
+    def test_no_error_if_user_unfollows_not_followed_author(self, mzs, first_user):
+        mzs.unfollow(first_user)  # does not raise

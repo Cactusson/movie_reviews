@@ -3,7 +3,6 @@ import re
 from django.core import mail
 from playwright.sync_api import expect
 
-
 TEST_EMAIL = "test@example.com"
 SUBJECT = "Your Login Link for Movie Reviews"
 
@@ -14,7 +13,7 @@ def test_login_using_magic_link(live_server, page):
     # Alice notices a `Log In` section in the navbar
     # It's telling her to enter her email address and she does
     navbar = page.get_by_role("navigation")
-    email_field = navbar.get_by_label("Enter your email to log in")
+    email_field = navbar.get_by_placeholder("Enter your email to log in")
     expect(email_field).to_be_visible()
     email_field.fill(TEST_EMAIL)
     email_field.press("Enter")

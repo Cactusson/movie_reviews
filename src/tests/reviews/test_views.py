@@ -57,6 +57,55 @@ class TestHomePage:
 
 
 @pytest.mark.django_db
+class TestHomePageAsLoggedInUser:
+    def soup(self, client):
+        response = client.get("/")
+        return BeautifulSoup(response.content, "html.parser")
+
+    def test_user_sees_all_reviews_if_does_not_follow_any_authors(
+        self, client, first_user, night_patrol, sound_of_falling
+    ):
+        client.force_login(first_user)
+        soup = self.soup(client)
+        reviews = soup.find_all("div", {"class": "review"})
+        assert len(reviews) == 2
+
+    def test_user_sees_only_reviews_of_authors_he_follows(
+        self, client, first_user, night_patrol, sound_of_falling
+    ):
+        night_patrol.author.follow(first_user)
+        client.force_login(first_user)
+        soup = self.soup(client)
+        reviews = soup.find_all("div", {"class": "review"})
+        assert len(reviews) == 1
+        titles = [review.find("h2").string for review in reviews]
+        assert night_patrol.title in titles
+        assert sound_of_falling.title not in titles
+
+    def test_each_user_sees_reviews_by_author_he_follows(
+        self, client, first_user, second_user, night_patrol, sound_of_falling
+    ):
+        night_patrol.author.follow(first_user)
+        sound_of_falling.author.follow(second_user)
+
+        client.force_login(first_user)
+        soup = self.soup(client)
+        reviews = soup.find_all("div", {"class": "review"})
+        assert len(reviews) == 1
+        titles = [review.find("h2").string for review in reviews]
+        assert night_patrol.title in titles
+        assert sound_of_falling.title not in titles
+
+        client.force_login(second_user)
+        soup = self.soup(client)
+        reviews = soup.find_all("div", {"class": "review"})
+        assert len(reviews) == 1
+        titles = [review.find("h2").string for review in reviews]
+        assert sound_of_falling.title in titles
+        assert night_patrol.title not in titles
+
+
+@pytest.mark.django_db
 class TestReviewDetail:
     @pytest.fixture
     def soup(self, client, night_patrol):
@@ -110,7 +159,10 @@ class TestReviewDetail:
 class TestAuthorDetail:
     @pytest.fixture
     def soup(self, client, mzs, night_patrol, king_of_color, sound_of_falling):
-        response = client.get(f"/{mzs.slug}/")
+        return self.prepare_soup(client, mzs)
+
+    def prepare_soup(self, client, author):
+        response = client.get(f"/{author.slug}/")
         return BeautifulSoup(response.content, "html.parser")
 
     def test_uses_author_detail_template(self, client, mzs):
@@ -138,6 +190,48 @@ class TestAuthorDetail:
         assert headline is not None
         counter = headline.find("span")
         assert str(mzs.reviews.count()) in counter.string
+
+    def test_follow_button_is_present_if_user_is_logged_in(
+        self, client, mzs, first_user
+    ):
+        client.force_login(first_user)
+        soup = self.prepare_soup(client, mzs)
+        follow_button = soup.find("a", {"class": "follow-button"})
+        assert follow_button is not None
+
+    def test_follow_button_is_not_present_if_user_is_logged_out(self, soup):
+        follow_button = soup.find("a", {"class": "follow-button"})
+        assert follow_button is None
+
+    def test_follow_button_is_not_present_if_user_already_follows_author(
+        self, client, mzs, first_user
+    ):
+        mzs.follow(first_user)
+        client.force_login(first_user)
+        soup = self.prepare_soup(client, mzs)
+        follow_button = soup.find("a", {"class": "follow-button"})
+        assert follow_button is None
+
+    def test_unfollow_button_is_not_present_if_user_is_logged_out(self, soup):
+        unfollow_button = soup.find("a", {"class": "unfollow-button"})
+        assert unfollow_button is None
+
+    def test_unfollow_button_is_not_present_if_user_does_not_follow_author(
+        self, client, mzs, first_user
+    ):
+        client.force_login(first_user)
+        soup = self.prepare_soup(client, mzs)
+        unfollow_button = soup.find("a", {"class": "unfollow-button"})
+        assert unfollow_button is None
+
+    def test_unfollow_button_is_present_if_user_follows_author(
+        self, client, mzs, first_user
+    ):
+        mzs.follow(first_user)
+        client.force_login(first_user)
+        soup = self.prepare_soup(client, mzs)
+        unfollow_button = soup.find("a", {"class": "unfollow-button"})
+        assert unfollow_button is not None
 
 
 @pytest.mark.django_db

@@ -1,8 +1,11 @@
 from bs4 import BeautifulSoup
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
+
+USER_MODEL = get_user_model()
 
 
 class Review(models.Model):
@@ -44,6 +47,7 @@ class Review(models.Model):
 class Author(models.Model):
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
+    followers = models.ManyToManyField(USER_MODEL, related_name="follows", blank=True)
 
     class Meta:
         ordering = ("name",)
@@ -63,6 +67,12 @@ class Author(models.Model):
     @property
     def last_name(self):
         return self.name.split()[-1]
+
+    def follow(self, user):
+        self.followers.add(user)
+
+    def unfollow(self, user):
+        self.followers.remove(user)
 
 
 class TaskControl(models.Model):

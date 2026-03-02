@@ -4,6 +4,7 @@ import os
 import pytest
 import responses
 import time_machine
+from django.contrib.auth import get_user_model
 from django.db import connections
 from playwright.sync_api import sync_playwright
 
@@ -11,6 +12,8 @@ from reviews.models import Author, Review
 from tests.data_provider import DataProvider
 
 os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
+
+USER_MODEL = get_user_model()
 
 
 def create_review(data):
@@ -45,6 +48,16 @@ def page(request):
         page = browser.new_page()
         yield page
         browser.close()
+
+
+@pytest.fixture
+def first_user(db):
+    return USER_MODEL.objects.create(email="test@example.com")
+
+
+@pytest.fixture
+def second_user(db):
+    return USER_MODEL.objects.create(email="test2@example.com")
 
 
 @pytest.fixture

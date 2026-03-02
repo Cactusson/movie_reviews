@@ -1,8 +1,11 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static "reviews/css/style.css" %}">
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
@@ -12,30 +15,28 @@
             <li><a href="{% url "reviews:author_list" %}">Authors</a></li>
             {% if user.is_authenticated %}
                 <li><strong>{{ user.email }}</strong></li>
-                <form method="POST" action="{% url "accounts:logout" %}">
-                {% csrf_token %}
-                    <button id="id_logout" class="btn btn-outline-secondary" type="submit">Log Out</button>
-                </form>
-                {% else %}
-                <form method="POST" action="{% url "accounts:send_login_email" %}">
+                <li>
+                    <form method="POST" action="{% url "accounts:logout" %}">
                     {% csrf_token %}
-                    <div class="input-group">
-                        <label class="navbar-text me-2" for="id_email_input">
-                        Enter your email to log in
-                        </label>
+                        <button id="id_logout" class="btn btn-outline-secondary link-button" type="submit">Log Out</button>
+                    </form>
+                </li>
+                {% else %}
+                <li>
+                    <form method="POST" action="{% url "accounts:send_login_email" %}">
+                        {% csrf_token %}
                         <input
                         id="id_email_input"
                         name="email"
                         class="form-control"
-                        placeholder="your@email.com"
+                        placeholder="Enter your email to log in"
                         />
-                    </div>
-                </form>
+                    </form>
+                </li>
             {% endif %}
             <li class="search">
                 <form type="get" action="{% url 'reviews:search' %}">
-                    <label for="search_input">Search</label>
-                    <input id="search_input" type="text" name="q" autocomplete="off"{% if q %} value="{{ q }}"{% endif %}>
+                    <input id="search_input" type="text" name="q" placeholder="Search" autocomplete="off"{% if q %} value="{{ q }}"{% endif %}>
                 </form>
             </li>
         </ul>
