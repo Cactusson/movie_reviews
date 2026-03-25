@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task
-def collect_new_reviews():
+def collect_new_reviews() -> dict[str, str]:
     if not TaskControl.is_task_enabled():
         logger.info("Task skipped - execution disabled")
         return {

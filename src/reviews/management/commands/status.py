@@ -1,12 +1,14 @@
+from typing import Any
+
 from django.core.management import BaseCommand
 
 from reviews.models import TaskControl
 
 
 class Command(BaseCommand):
-    help = "Check task execution status"
+    help: str = "Check task execution status"
 
-    def handle(self, *args, **options):
+    def handle(self, *args: Any, **options: Any) -> None:
         if TaskControl.is_task_enabled():
             self.stdout.write(
                 self.style.SUCCESS(

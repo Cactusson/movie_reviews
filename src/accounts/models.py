@@ -1,8 +1,12 @@
 import uuid
+from typing import TYPE_CHECKING, Any
 
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.utils import timezone
+
+if TYPE_CHECKING:
+    from reviews.models import Author
 
 
 class Token(models.Model):
@@ -10,8 +14,10 @@ class Token(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, max_length=40)
 
 
-class CustomUserManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
+class CustomUserManager(BaseUserManager["CustomUser"]):
+    def create_user(
+        self, email: str, password: str | None = None, **extra_fields: Any
+    ) -> "CustomUser":
         if not email:
             raise ValueError("The Email field must be set")
         email = self.normalize_email(email)
@@ -21,7 +27,9 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
+    def create_superuser(
+        self, email: str, password: str | None = None, **extra_fields: Any
+    ) -> "CustomUser":
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
@@ -31,6 +39,7 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractBaseUser):
     email = models.EmailField(primary_key=True)
+    follows: models.QuerySet[Author]
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -41,5 +50,5 @@ class CustomUser(AbstractBaseUser):
 
     objects = CustomUserManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.email

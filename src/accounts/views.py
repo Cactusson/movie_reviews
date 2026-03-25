@@ -1,12 +1,13 @@
 from django.contrib import auth, messages
 from django.core.mail import send_mail
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 
 from accounts.models import Token
 
 
-def send_login_email(request):
+def send_login_email(request: HttpRequest) -> HttpResponse:
     email = request.POST["email"]
     token = Token.objects.create(email=email)
     url = request.build_absolute_uri(
@@ -25,7 +26,7 @@ def send_login_email(request):
     return redirect("/")
 
 
-def login(request):
+def login(request: HttpRequest) -> HttpResponse:
     if user := auth.authenticate(uuid=request.GET["token"]):
         auth.login(request, user)
     else:

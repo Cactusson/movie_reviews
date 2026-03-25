@@ -1,11 +1,13 @@
 import datetime
 import re
 from abc import ABC
+from typing import cast
 
 import feedparser
 import requests
 from django.conf import settings
 from django.utils import timezone
+from feedparser.util import FeedParserDict
 
 from reviews.models import Author, Review
 
@@ -36,7 +38,7 @@ class Parser(ABC):
     ) -> list[Review]:
         if not url.endswith("/"):
             url += "/"
-        new_reviews = []
+        new_reviews: list[Review] = []
         page = 1
 
         cutoff_date = timezone.now() - datetime.timedelta(days=7)
@@ -75,15 +77,13 @@ class Parser(ABC):
                     new_reviews.append(review)
             page += 1
 
-    def parse_one_rss_page(
-        self, url: str, page: int = 1
-    ) -> list[feedparser.util.FeedParserDict]:
+    def parse_one_rss_page(self, url: str, page: int = 1) -> list[FeedParserDict]:
         response = requests.get(url, timeout=10, params={"paged": page})
         response.raise_for_status()
         feed = feedparser.parse(response.content)
-        return feed.entries
+        return cast(list[FeedParserDict], feed.entries)
 
-    def extract_title(self, entry: feedparser.util.FeedParserDict) -> str:
+    def extract_title(self, entry: FeedParserDict) -> str:
         assert type(entry.title) is str
         return entry.title
 
