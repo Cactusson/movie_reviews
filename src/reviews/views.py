@@ -49,7 +49,7 @@ def author_detail(request: HttpRequest, slug: str) -> HttpResponse:
 def search(request: HttpRequest) -> HttpResponse:
     search_term = request.GET.get("q", "")
     if search_term == "":
-        found_in_authors = Author.objects.none()
+        found_in_authors_list = Author.objects.none()
         found_in_titles = Review.objects.none()
     else:
         found_in_authors = Author.objects.filter(name__icontains=search_term).annotate(
