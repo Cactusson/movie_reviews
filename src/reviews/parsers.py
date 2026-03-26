@@ -11,7 +11,7 @@ from feedparser.util import FeedParserDict
 
 from reviews.models import Author, Review
 
-MOVIE_TITLE_PATTERN = re.compile(r"^‘(.*?)’ Review: ")
+MOVIE_TITLE_PATTERN = re.compile(r"^(‘|’)(.*?)’ Review: ")
 
 
 def collect_parsers() -> list[tuple[str, type[Parser]]]:
@@ -49,11 +49,15 @@ class Parser(ABC):
                 return new_reviews
 
             for entry in entries_from_current_page:
+                if not self.is_entry_a_review(entry):
+                    continue
                 assert type(entry.published) is str  # to make mypy happy
                 date = datetime.datetime.strptime(
                     entry.published, "%a, %d %b %Y %H:%M:%S %z"
                 )
-                if not ignore_cutoff_date and date < cutoff_date:
+                if date.year < settings.CUTOFF_YEAR or (
+                    not ignore_cutoff_date and date < cutoff_date
+                ):
                     return new_reviews
                 author = Author.objects.get_or_create(name=entry.author)[0]
                 title = self.extract_title(entry)
@@ -87,6 +91,9 @@ class Parser(ABC):
         assert type(entry.title) is str
         return entry.title
 
+    def is_entry_a_review(self, entry: FeedParserDict) -> bool:
+        return True
+
 
 class RogerEbertParser(Parser):
     pass
@@ -97,6 +104,10 @@ class IndieWireParser(Parser):
         assert type(entry.title) is str
         match = MOVIE_TITLE_PATTERN.search(entry.title)
         if match is not None:
-            return match.group(1)
+            return match.group(2)
         else:
             return entry.title
+
+    def is_entry_a_review(self, entry: FeedParserDict) -> bool:
+        assert type(entry.title) is str
+        return MOVIE_TITLE_PATTERN.search(entry.title) is not None

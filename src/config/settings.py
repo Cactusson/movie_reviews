@@ -143,3 +143,4 @@ RSS_PARSERS = {
     "https://www.rogerebert.com/reviews/feed/": "RogerEbertParser",
     "https://www.indiewire.com/c/criticism/movies/feed/": "IndieWireParser",
 }
+CUTOFF_YEAR = 2015  # the parser will collect reviews up to and including this year

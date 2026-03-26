@@ -99,6 +99,10 @@ def mocked_rss_feed():
         rss_content_with_old_entries = file.read()
     with open("tests/fixtures/test_feed_indiewire.xml") as file:
         rss_content_indiewire = file.read()
+    with open("tests/fixtures/test_feed_older_than_cutoff_year.xml") as file:
+        rss_content_cutoff_year = file.read()
+    with open("tests/fixtures/test_feed_contains_not_reviews.xml") as file:
+        rss_content_with_not_reviews = file.read()
 
     with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
         # have to add mocked responses 100 times because otherwise they won't work more than once in one test
@@ -164,6 +168,34 @@ def mocked_rss_feed():
                 responses.GET,
                 "https://www.rogerebert.com/reviews/feed/",
                 body=rss_content_page_1,
+                status=200,
+                content_type="application/xml",
+            )
+            rsps.add(
+                responses.GET,
+                "https://www.rogerebert.com/reviews/feed_cutoff_date/?paged=2",
+                body=rss_content_empty,
+                status=200,
+                content_type="application/xml",
+            )
+            rsps.add(
+                responses.GET,
+                "https://www.rogerebert.com/reviews/feed_cutoff_date/",
+                body=rss_content_cutoff_year,
+                status=200,
+                content_type="application/xml",
+            )
+            rsps.add(
+                responses.GET,
+                "https://www.indiewire.com/c/criticism/movies/feed_with_not_reviews/?paged=2",
+                body=rss_content_empty,
+                status=200,
+                content_type="application/xml",
+            )
+            rsps.add(
+                responses.GET,
+                "https://www.indiewire.com/c/criticism/movies/feed_with_not_reviews/",
+                body=rss_content_with_not_reviews,
                 status=200,
                 content_type="application/xml",
             )

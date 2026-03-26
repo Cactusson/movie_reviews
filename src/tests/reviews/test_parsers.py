@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from django.test import override_settings
 
 from reviews.models import Review
 from reviews.parsers import IndieWireParser, Parser
@@ -86,6 +87,20 @@ class TestParser:
         for entry in entries:
             assert entry.content is None
 
+    @override_settings(CUTOFF_YEAR=2021)
+    def test_parser_will_stop_after_cutoff_year(self, parser, mocked_rss_feed):
+        """
+        Parser should stop if it encounters an entry a week old
+        (the time period may change in the future)
+        """
+        assert Review.objects.count() == 0
+        entries = parser.parse_full_rss_feed(
+            "https://www.rogerebert.com/reviews/feed_cutoff_date/",
+            ignore_cutoff_date=True,
+        )
+        assert len(entries) == 1
+        assert Review.objects.count() == 1
+
 
 @pytest.mark.django_db
 class TestIndieWireParser:
@@ -107,3 +122,9 @@ class TestIndieWireParser:
         assert len(entries) == 12
         assert entries[0].title == "The Gallerist"
         assert entries[1].title == "Bedford Park"
+
+    def test_parser_will_ignore_not_reviews(self, parser, mocked_rss_feed):
+        entries = parser.parse_full_rss_feed(
+            "https://www.indiewire.com/c/criticism/movies/feed_with_not_reviews/"
+        )
+        assert len(entries) == 11
