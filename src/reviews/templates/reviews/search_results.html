@@ -21,7 +21,7 @@
             {% endif %}
             <p>Found in titles: {{ found_in_titles_count }}</p>
             {% for review in found_in_titles %}
-                {% include "reviews/_review.html" with review=review link_needed=True first_sentence_only=True %}
+                {% include "reviews/_review.html" with review=review link_needed=True %}
             {% endfor %}
         {% endif %}
     {% else %}

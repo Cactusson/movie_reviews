@@ -142,5 +142,7 @@ REVIEWS_PER_PAGE = 30
 RSS_PARSERS = {
     "https://www.rogerebert.com/reviews/feed/": "RogerEbertParser",
     "https://www.indiewire.com/c/criticism/movies/feed/": "IndieWireParser",
+    "https://larsenonfilm.com/feed/": "LarsenOnFilmParser",
+    "https://www.movie-blogger.com/feed/": "MovieBloggerParser",
 }
-CUTOFF_YEAR = 2015  # the parser will collect reviews up to and including this year
+CUTOFF_YEAR = 2025  # the parser will collect reviews up to and including this year

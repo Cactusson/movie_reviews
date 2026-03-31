@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import pytest
 from django.core.management import call_command
+from django.test import override_settings
 
 from reviews.models import Review, TaskControl
 from reviews.parsers import IndieWireParser, RogerEbertParser
@@ -30,6 +31,7 @@ class TestCollectReviewsCommand:
             )
         ],
     )
+    @override_settings(CUTOFF_YEAR=2000)
     def test_will_ignore_cutoff_date_if_init_is_passed(
         self, mocked_function, mocked_rss_feed
     ):

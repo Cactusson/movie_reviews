@@ -1,6 +1,5 @@
 from typing import Any
 
-from bs4 import BeautifulSoup
 from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
@@ -16,9 +15,8 @@ class Review(models.Model):
     author = models.ForeignKey(
         "reviews.Author", related_name="reviews", on_delete=models.CASCADE
     )
-    url = models.URLField()
+    url = models.URLField(max_length=400)
     date = models.DateField()
-    content = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = ("title", "author", "url", "date")
@@ -37,14 +35,6 @@ class Review(models.Model):
     @property
     def formatted_date(self) -> str:
         return self.date.strftime("%B %d, %Y")
-
-    @property
-    def first_sentence(self) -> str | None:
-        if self.content is None:
-            return None
-        text = BeautifulSoup(self.content, "html.parser").get_text()[:200].rstrip()
-        last_space_index = text.rfind(" ")
-        return text[:last_space_index] + "..."
 
 
 class Author(models.Model):

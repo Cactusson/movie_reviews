@@ -13,7 +13,6 @@ class TestReviewModel:
             author=mzs,
             url="https://www.rogerebert.com/reviews/night-patrol-shudder-film-review-2026",
             date=datetime.date(2026, 1, 19),
-            content="...",
         )
         with pytest.raises(ValidationError):
             review.save()
@@ -23,7 +22,6 @@ class TestReviewModel:
             title="Night Patrol",
             url="https://www.rogerebert.com/reviews/night-patrol-shudder-film-review-2026",
             date=datetime.date(2026, 1, 19),
-            content="...",
         )
         with pytest.raises(ValidationError):
             review.save()
@@ -33,7 +31,6 @@ class TestReviewModel:
             author=mzs,
             title="Night Patrol",
             date=datetime.date(2026, 1, 19),
-            content="...",
         )
         with pytest.raises(ValidationError):
             review.save()
@@ -43,7 +40,6 @@ class TestReviewModel:
             author=mzs,
             title="Night Patrol",
             url="https://www.rogerebert.com/reviews/night-patrol-shudder-film-review-2026",
-            content="...",
         )
         with pytest.raises(ValidationError):
             review.save()
@@ -63,7 +59,6 @@ class TestReviewModel:
             author=mzs,
             url="https://www.rogerebert.com/reviews/night-patrol-shudder-film-review-2026",
             date=datetime.date(2026, 1, 19),
-            content="...",
         )
         review.save()  # does not raise an error
 
@@ -80,15 +75,6 @@ class TestReviewModel:
         with pytest.raises(ValidationError):
             review.save()
 
-    def test_content_is_none_by_default(self, mzs):
-        review = Review.objects.create(
-            title="Night Patrol",
-            author=mzs,
-            url="https://www.rogerebert.com/reviews/night-patrol-shudder-film-review-2026",
-            date=datetime.date(2026, 1, 19),
-        )
-        assert review.content is None
-
     def test_reviews_are_ordered_by_date(
         self, night_patrol, king_of_color, sound_of_falling
     ):
@@ -103,16 +89,6 @@ class TestReviewModel:
 
     def test_get_absolute_url(self, night_patrol):
         assert night_patrol.get_absolute_url().endswith(f"/{night_patrol.pk}/")
-
-    def test_first_sentence_is_none_if_content_is_none(self, sound_of_falling):
-        assert sound_of_falling.content is None
-        assert sound_of_falling.first_sentence is None
-
-    def test_first_sentence_of_content(self, night_patrol):
-        assert (
-            night_patrol.first_sentence
-            == "Writer-director Ryan Prows‘ “Night Patrol,” a cop corruption thriller that’s also a vampire movie, has a sprawling cast, but focuses on four characters. There’s Ethan Hawkins (Justin Long), the son..."
-        )
 
 
 @pytest.mark.django_db

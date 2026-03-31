@@ -44,17 +44,6 @@ class TestHomePage:
         assert url is not None
         assert url["href"] == night_patrol.get_absolute_url()
 
-    def test_if_review_has_content_home_page_displays_first_sentence(
-        self, night_patrol, soup
-    ):
-        review = soup.find("div", {"class": "review"})
-        content = review.find("div", {"class": "review-content"})
-        assert content is not None
-        assert (
-            BeautifulSoup(night_patrol.first_sentence, "html.parser").get_text()
-            == content.get_text()
-        )
-
 
 @pytest.mark.django_db
 class TestHomePageAsLoggedInUser:
@@ -136,16 +125,6 @@ class TestReviewDetail:
         date = review.find("div", {"class": "date"})
         assert date is not None
         assert night_patrol.formatted_date in date.text
-
-    def test_displays_content_if_exists(self, night_patrol, soup):
-        review = soup.find("div", {"class": "review"})
-        content = review.find("div", {"class": "review-content"})
-
-        assert content is not None
-        assert (
-            BeautifulSoup(night_patrol.content, "html.parser").get_text()
-            in content.get_text()
-        )
 
     def test_name_of_author_is_url_to_this_author_detail_page(self, night_patrol, soup):
         review = soup.find("div", {"class": "review"})

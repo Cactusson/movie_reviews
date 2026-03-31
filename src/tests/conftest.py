@@ -2,8 +2,8 @@ import datetime
 import os
 
 import pytest
-import responses
 import time_machine
+from aioresponses import aioresponses
 from django.contrib.auth import get_user_model
 from django.db import connections
 from playwright.sync_api import sync_playwright
@@ -23,7 +23,6 @@ def create_review(data):
         author=author,
         url=data["url"],
         date=datetime.date.fromisoformat(data["date"]),
-        content=data.get("content", None),
     )
 
 
@@ -87,120 +86,99 @@ def king_of_color(db, mzs, test_data):
 
 @pytest.fixture
 def mocked_rss_feed():
-    with open("tests/fixtures/test_feed_page_1.xml") as file:
-        rss_content_page_1 = file.read()
-    with open("tests/fixtures/test_feed_page_2.xml") as file:
-        rss_content_page_2 = file.read()
-    with open("tests/fixtures/test_feed_empty.xml") as file:
-        rss_content_empty = file.read()
-    with open("tests/fixtures/test_feed_with_duplicates.xml") as file:
-        rss_content_with_duplicates = file.read()
-    with open("tests/fixtures/test_feed_with_old_entries.xml") as file:
-        rss_content_with_old_entries = file.read()
-    with open("tests/fixtures/test_feed_indiewire.xml") as file:
-        rss_content_indiewire = file.read()
-    with open("tests/fixtures/test_feed_older_than_cutoff_year.xml") as file:
-        rss_content_cutoff_year = file.read()
-    with open("tests/fixtures/test_feed_contains_not_reviews.xml") as file:
-        rss_content_with_not_reviews = file.read()
+    with aioresponses() as m:
+        with open("tests/fixtures/test_feed_page_1.xml") as file:
+            rss_content_page_1 = file.read()
+        with open("tests/fixtures/test_feed_page_2.xml") as file:
+            rss_content_page_2 = file.read()
+        with open("tests/fixtures/test_feed_empty.xml") as file:
+            rss_content_empty = file.read()
+        with open("tests/fixtures/test_feed_with_duplicates.xml") as file:
+            rss_content_with_duplicates = file.read()
+        with open("tests/fixtures/test_feed_with_old_entries.xml") as file:
+            rss_content_with_old_entries = file.read()
+        with open("tests/fixtures/test_feed_indiewire.xml") as file:
+            rss_content_indiewire = file.read()
+        with open("tests/fixtures/test_feed_older_than_cutoff_year.xml") as file:
+            rss_content_cutoff_year = file.read()
+        with open("tests/fixtures/test_feed_contains_not_reviews.xml") as file:
+            rss_content_with_not_reviews = file.read()
 
-    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
         # have to add mocked responses 100 times because otherwise they won't work more than once in one test
         # is there a better way?
         for _ in range(100):
-            rsps.add(
-                responses.GET,
+            m.get(
                 "https://www.indiewire.com/c/criticism/movies/feed/?paged=2",
                 body=rss_content_empty,
                 status=200,
-                content_type="application/xml",
             )
-            rsps.add(
-                responses.GET,
-                "https://www.indiewire.com/c/criticism/movies/feed/",
+            m.get(
+                "https://www.indiewire.com/c/criticism/movies/feed/?paged=1",
                 body=rss_content_indiewire,
                 status=200,
-                content_type="application/xml",
             )
-            rsps.add(
-                responses.GET,
+            m.get(
                 "https://www.rogerebert.com/reviews/feed_with_old_entries/?paged=2",
                 body=rss_content_empty,
                 status=200,
-                content_type="application/xml",
             )
-            rsps.add(
-                responses.GET,
-                "https://www.rogerebert.com/reviews/feed_with_old_entries/",
+            m.get(
+                "https://www.rogerebert.com/reviews/feed_with_old_entries/?paged=1",
                 body=rss_content_with_old_entries,
                 status=200,
-                content_type="application/xml",
             )
-            rsps.add(
-                responses.GET,
+            m.get(
                 "https://www.rogerebert.com/reviews/feed_with_duplicates/?paged=2",
                 body=rss_content_empty,
                 status=200,
-                content_type="application/xml",
             )
-            rsps.add(
-                responses.GET,
-                "https://www.rogerebert.com/reviews/feed_with_duplicates/",
+            m.get(
+                "https://www.rogerebert.com/reviews/feed_with_duplicates/?paged=1",
                 body=rss_content_with_duplicates,
                 status=200,
-                content_type="application/xml",
             )
-            rsps.add(
-                responses.GET,
+            m.get(
                 "https://www.rogerebert.com/reviews/feed/?paged=3",
                 body=rss_content_empty,
                 status=200,
-                content_type="application/xml",
             )
-            rsps.add(
-                responses.GET,
+            m.get(
                 "https://www.rogerebert.com/reviews/feed/?paged=2",
                 body=rss_content_page_2,
                 status=200,
-                content_type="application/xml",
             )
-            rsps.add(
-                responses.GET,
-                "https://www.rogerebert.com/reviews/feed/",
+            m.get(
+                "https://www.rogerebert.com/reviews/feed/?paged=1",
                 body=rss_content_page_1,
                 status=200,
-                content_type="application/xml",
             )
-            rsps.add(
-                responses.GET,
+            m.get(
                 "https://www.rogerebert.com/reviews/feed_cutoff_date/?paged=2",
                 body=rss_content_empty,
                 status=200,
-                content_type="application/xml",
             )
-            rsps.add(
-                responses.GET,
-                "https://www.rogerebert.com/reviews/feed_cutoff_date/",
+            m.get(
+                "https://www.rogerebert.com/reviews/feed_cutoff_date/?paged=1",
                 body=rss_content_cutoff_year,
                 status=200,
-                content_type="application/xml",
             )
-            rsps.add(
-                responses.GET,
+            m.get(
                 "https://www.indiewire.com/c/criticism/movies/feed_with_not_reviews/?paged=2",
                 body=rss_content_empty,
                 status=200,
-                content_type="application/xml",
             )
-            rsps.add(
-                responses.GET,
-                "https://www.indiewire.com/c/criticism/movies/feed_with_not_reviews/",
+            m.get(
+                "https://www.indiewire.com/c/criticism/movies/feed_with_not_reviews/?paged=1",
                 body=rss_content_with_not_reviews,
                 status=200,
-                content_type="application/xml",
             )
+        yield m
+        # with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
+        #     # have to add mocked responses 100 times because otherwise they won't work more than once in one test
+        #     # is there a better way?
+        #     for _ in range(100):
 
-        yield rsps
+        #     yield rsps
 
 
 @pytest.fixture(autouse=True, scope="session")

@@ -6,7 +6,7 @@
     <h1>Movie Reviews</h1>
 
     {% for review in page_obj %}
-        {% include "reviews/_review.html" with review=review link_needed=True first_sentence_only=True %}
+        {% include "reviews/_review.html" with review=review link_needed=True %}
     {% endfor %}
 
     {% if page_obj.has_previous or page_obj.has_next %}

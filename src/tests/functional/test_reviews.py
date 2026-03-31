@@ -37,9 +37,6 @@ def test_navigating_between_reviews(
     first_review.get_by_text("Night Patrol", exact=True).click()
     expect(page).to_have_title("Night Patrol")
 
-    # Here she sees the full review
-    expect(page.locator("div.review-content")).to_be_visible()
-
     # She notices that the author's name is a link and clicks on it
     page.get_by_text("Matt Zoller Seitz", exact=True).click()
 
