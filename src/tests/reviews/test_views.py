@@ -95,6 +95,29 @@ class TestHomePageAsLoggedInUser:
 
 
 @pytest.mark.django_db
+class TestFullFeed:
+    def soup(self, client):
+        response = client.get("/all/")
+        return BeautifulSoup(response.content, "html.parser")
+
+    def test_uses_home_page_template(self, client):
+        response = client.get("/all/")
+        asserts.assertTemplateUsed(response, "reviews/home_page.html")
+
+    def test_user_subscribed_to_one_author_sees_full_feed_anyway(
+        self, client, first_user, night_patrol, sound_of_falling
+    ):
+        night_patrol.author.follow(first_user)
+        client.force_login(first_user)
+        soup = self.soup(client)
+        reviews = soup.find_all("div", {"class": "review"})
+        assert len(reviews) == 2
+        titles = [review.find("h2").string for review in reviews]
+        assert night_patrol.title in titles
+        assert sound_of_falling.title in titles
+
+
+@pytest.mark.django_db
 class TestReviewDetail:
     @pytest.fixture
     def soup(self, client, night_patrol):

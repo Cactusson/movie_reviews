@@ -19,7 +19,16 @@ def home_page(request: HttpRequest) -> HttpResponse:
     paginator = Paginator(reviews, settings.REVIEWS_PER_PAGE)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    context = {"page_obj": page_obj}
+    context = {"page_obj": page_obj, "all_reviews": False}
+    return render(request, "reviews/home_page.html", context)
+
+
+def full_feed(request: HttpRequest) -> HttpResponse:
+    reviews = Review.objects.all()
+    paginator = Paginator(reviews, settings.REVIEWS_PER_PAGE)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {"page_obj": page_obj, "all_reviews": True}
     return render(request, "reviews/home_page.html", context)
 
 
