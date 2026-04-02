@@ -126,3 +126,24 @@ class ParserControl(models.Model):
             obj.is_running = False
             obj.stopped_at = timezone.now()
             obj.save()
+
+
+class LetterboxdUser(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class LetterboxdEntry(models.Model):
+    letterboxd_user = models.ForeignKey(
+        LetterboxdUser, related_name="entries", on_delete=models.CASCADE
+    )
+    title = models.CharField(max_length=500)
+    date = models.DateTimeField()
+
+    class Meta:
+        unique_together = ("letterboxd_user", "title", "date")
+
+    def __str__(self) -> str:
+        return self.title

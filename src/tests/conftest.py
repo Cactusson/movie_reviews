@@ -173,12 +173,19 @@ def mocked_rss_feed():
                 status=200,
             )
         yield m
-        # with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
-        #     # have to add mocked responses 100 times because otherwise they won't work more than once in one test
-        #     # is there a better way?
-        #     for _ in range(100):
 
-        #     yield rsps
+
+@pytest.fixture
+def mocked_letterboxd_feed():
+    with aioresponses() as m:
+        with open("tests/fixtures/test_feed_letterboxd.xml") as file:
+            rss_content = file.read()
+        m.get(
+            "https://www.indiewire.com/c/criticism/movies/feed/?paged=2",
+            body=rss_content,
+            status=200,
+        )
+        yield m
 
 
 @pytest.fixture(autouse=True, scope="session")

@@ -40,6 +40,13 @@ class CustomUserManager(BaseUserManager["CustomUser"]):
 class CustomUser(AbstractBaseUser):
     email = models.EmailField(primary_key=True)
     email_notifications = models.BooleanField(default=False)
+    letterboxd_user = models.OneToOneField(
+        "reviews.LetterboxdUser",
+        related_name="user",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
     follows: models.QuerySet[Author]
 
     USERNAME_FIELD = "email"

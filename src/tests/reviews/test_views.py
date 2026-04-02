@@ -335,7 +335,7 @@ class TestProfile:
         response = client.get("/profile/")
         return BeautifulSoup(response.content, "html.parser")
 
-    def test_uses_author_list_template(self, client, first_user):
+    def test_uses_profile_template(self, client, first_user):
         client.force_login(first_user)
         response = client.get("/profile/")
         asserts.assertTemplateUsed(response, "reviews/profile.html")
@@ -350,3 +350,21 @@ class TestProfile:
         assert len(authors) == 1
         assert mzs.name in str(author_list)
         assert sheila.name not in str(author_list)
+
+
+@pytest.mark.django_db
+class TestLetterboxd:
+    def soup(self, client):
+        response = client.get("/letterboxd/")
+        return BeautifulSoup(response.content, "html.parser")
+
+    def test_uses_letterboxd_template(self, client, first_user):
+        client.force_login(first_user)
+        response = client.get("/letterboxd/")
+        asserts.assertTemplateUsed(response, "reviews/letterboxd.html")
+
+    def test_user_without_letterboxd_account_sees_empty_page(self, client, first_user):
+        client.force_login(first_user)
+        soup = self.soup(client)
+        reviews = soup.find_all("div", {"class": "review"})
+        assert len(reviews) == 0
