@@ -8,6 +8,7 @@ urlpatterns = [
     path("all/", views.full_feed, name="full_feed"),
     path("<int:pk>/", views.review_detail, name="review_detail"),
     path("search/", views.search, name="search"),
+    path("profile/", views.profile, name="profile"),
     path("authors/", views.author_list, name="author_list"),
     path("<str:slug>/", views.author_detail, name="author_detail"),
     path("<str:slug>/follow/", views.author_follow, name="author_follow"),

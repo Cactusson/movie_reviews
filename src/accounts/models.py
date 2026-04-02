@@ -39,6 +39,7 @@ class CustomUserManager(BaseUserManager["CustomUser"]):
 
 class CustomUser(AbstractBaseUser):
     email = models.EmailField(primary_key=True)
+    email_notifications = models.BooleanField(default=False)
     follows: models.QuerySet[Author]
 
     USERNAME_FIELD = "email"

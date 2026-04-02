@@ -12,6 +12,7 @@ from django.utils import timezone
 from feedparser.util import FeedParserDict
 
 from reviews.models import Author, Review
+from reviews.notifications import notify_users
 
 
 @dataclass
@@ -46,6 +47,9 @@ def collect_movies_from_feeds(
         )
         if created:
             new_reviews.append(review)
+
+    notify_users(new_reviews)
+
     return new_reviews
 
 
@@ -75,7 +79,6 @@ class Parser(ABC):
                 return new_entries
 
             for entry in entries_from_current_page:
-                print(entry.published)
                 if not self.is_entry_a_review(entry):
                     continue
                 assert type(entry.published) is str  # to make mypy happy

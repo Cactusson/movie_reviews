@@ -327,3 +327,26 @@ class TestSearch:
             title = review.find("h2")
             assert title is not None
             assert title.string in [sound_of_falling.title, king_of_color.title]
+
+
+@pytest.mark.django_db
+class TestProfile:
+    def soup(self, client):
+        response = client.get("/profile/")
+        return BeautifulSoup(response.content, "html.parser")
+
+    def test_uses_author_list_template(self, client, first_user):
+        client.force_login(first_user)
+        response = client.get("/profile/")
+        asserts.assertTemplateUsed(response, "reviews/profile.html")
+
+    def test_shows_authors_user_follows(self, client, first_user, mzs, sheila):
+        mzs.follow(first_user)
+        client.force_login(first_user)
+        soup = self.soup(client)
+        author_list = soup.find("ul", {"class": "author-list"})
+        assert author_list is not None
+        authors = author_list.find_all("li")
+        assert len(authors) == 1
+        assert mzs.name in str(author_list)
+        assert sheila.name not in str(author_list)

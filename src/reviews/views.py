@@ -1,6 +1,7 @@
 from typing import cast
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -8,6 +9,7 @@ from django.db.models import Count
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
+from reviews.forms import SettingsForm
 from reviews.models import Author, Review
 
 
@@ -92,3 +94,20 @@ def author_unfollow(request: HttpRequest, slug: str) -> HttpResponse:
     user = cast(AbstractBaseUser, request.user)
     author.followers.remove(user)
     return redirect(author.get_absolute_url())
+
+
+@login_required
+def profile(request: HttpRequest) -> HttpResponse:
+    if request.method == "POST":
+        form = SettingsForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your notifications settings have been saved.")
+            return redirect("reviews:profile")
+    else:
+        form = SettingsForm(instance=request.user)
+        authors = sorted(
+            request.user.follows.all(), key=lambda author: author.last_name
+        )
+        context = {"authors": authors, "form": form}
+        return render(request, "reviews/profile.html", context)

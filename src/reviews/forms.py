@@ -1,0 +1,13 @@
+from django.contrib.auth import get_user_model
+from django.forms import ModelForm
+
+USER_MODEL = get_user_model()
+
+
+class SettingsForm(ModelForm):
+    class Meta:
+        model = USER_MODEL
+        fields = ["email_notifications"]
+        labels = {
+            "email_notifications": "Email notifications",
+        }

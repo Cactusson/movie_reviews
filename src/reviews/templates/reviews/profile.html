@@ -1,0 +1,23 @@
+{% extends "reviews/base.html" %}
+
+{% block title %}Your profile{% endblock %}
+
+{% block content %}
+    <h1>Your profile</h1>
+
+    {% if authors %}
+        <h2>Authors you're following:</h2>
+        <ul class="author-list">
+            {% for author in authors %}
+            <li><a href="{{ author.get_absolute_url }}">{{ author.name }}</a> <span class="counter small">{{ author.reviews_counter }}</span></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <h2>Settings</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Save">
+    </form>
+{% endblock content %}

@@ -1,6 +1,8 @@
+from unittest import mock
 from unittest.mock import patch
 
 import pytest
+from django.test import override_settings
 
 from reviews.models import Review, TaskControl
 from reviews.parsers import IndieWireParser, RogerEbertParser
@@ -55,3 +57,67 @@ class TestCollectNewReviews:
         TaskControl.objects.create(pk=1, is_enabled=False)
         collect_new_reviews()
         assert Review.objects.count() == 0
+
+    @override_settings(
+        RSS_PARSERS={"https://www.rogerebert.com/reviews/feed/": "RogerEbertParser"}
+    )
+    @mock.patch("reviews.notifications.send_mail")
+    def test_user_receives_email_after_task_completes(
+        self, mock_send_mail, mocked_rss_feed, first_user, mzs
+    ):
+        first_user.email_notifications = True
+        first_user.save()
+        TaskControl.objects.create(pk=1, is_enabled=True)
+        mzs.follow(first_user)
+        collect_new_reviews()
+
+        assert mock_send_mail.called is True
+
+    @override_settings(
+        RSS_PARSERS={"https://www.rogerebert.com/reviews/feed/": "RogerEbertParser"}
+    )
+    @mock.patch("reviews.notifications.send_mail")
+    def test_two_users_receive_emails_after_task_completes(
+        self, mock_send_mail, mocked_rss_feed, first_user, second_user, sheila
+    ):
+        first_user.email_notifications = True
+        first_user.save()
+        second_user.email_notifications = True
+        second_user.save()
+        TaskControl.objects.create(pk=1, is_enabled=True)
+        sheila.follow(first_user)
+        sheila.follow(second_user)
+        collect_new_reviews()
+
+        assert mock_send_mail.call_count == 2
+
+    @override_settings(
+        RSS_PARSERS={"https://www.rogerebert.com/reviews/feed/": "RogerEbertParser"}
+    )
+    @mock.patch("reviews.notifications.send_mail")
+    def test_user_receives_only_one_email(
+        self, mock_send_mail, mocked_rss_feed, first_user, mzs, sheila
+    ):
+        first_user.email_notifications = True
+        first_user.save()
+        TaskControl.objects.create(pk=1, is_enabled=True)
+        mzs.follow(first_user)
+        sheila.follow(first_user)
+        collect_new_reviews()
+
+        assert mock_send_mail.call_count == 1
+
+    @override_settings(
+        RSS_PARSERS={"https://www.rogerebert.com/reviews/feed/": "RogerEbertParser"}
+    )
+    @mock.patch("reviews.notifications.send_mail")
+    def test_user_with_disabled_notifications_will_not_receive_email(
+        self, mock_send_mail, mocked_rss_feed, first_user, mzs
+    ):
+        first_user.email_notifications = False
+        first_user.save()
+        TaskControl.objects.create(pk=1, is_enabled=True)
+        mzs.follow(first_user)
+        collect_new_reviews()
+
+        assert mock_send_mail.call_count == 0

@@ -146,3 +146,6 @@ RSS_PARSERS = {
     "https://www.movie-blogger.com/feed/": "MovieBloggerParser",
 }
 CUTOFF_YEAR = 2025  # the parser will collect reviews up to and including this year
+
+
+DOMAIN = config("DOMAIN")
