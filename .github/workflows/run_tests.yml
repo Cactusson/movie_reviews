@@ -27,7 +27,7 @@ jobs:
         echo "EMAIL_PORT=${{ secrets.EMAIL_PORT }}" >> .env
 
     - name: Start containers
-      run: docker compose up -d
+      run: docker compose up -d db rabbitmq web
 
     - name: Run the fast tests first
       run: docker compose exec web sh -c "cd src && pytest tests/accounts tests/reviews"
