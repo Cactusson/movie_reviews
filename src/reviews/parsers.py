@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils import timezone
 from feedparser.util import FeedParserDict
 
-from reviews.models import Author, Review
+from reviews.models import Author, ParserControl, Review
 from reviews.notifications import notify_users
 
 
@@ -35,22 +35,30 @@ def collect_parsers() -> list[tuple[str, type[Parser]]]:
 def collect_movies_from_feeds(
     ignore_cutoff_date: bool = False,
 ) -> list[Review]:
-    new_reviews: list[Review] = []
-    entries = asyncio.run(collect_movies_from_feeds_async(ignore_cutoff_date))
-    for entry in entries:
-        author = Author.objects.get_or_create(name=entry.author)[0]
-        review, created = Review.objects.get_or_create(
-            title=entry.title,
-            author=author,
-            url=entry.url,
-            date=entry.date,
-        )
-        if created:
-            new_reviews.append(review)
+    if ParserControl.is_parsing_running():
+        print("Parser is already running.")
+        return []
 
-    notify_users(new_reviews)
+    try:
+        ParserControl.start_running()
+        new_reviews: list[Review] = []
+        entries = asyncio.run(collect_movies_from_feeds_async(ignore_cutoff_date))
+        for entry in entries:
+            author = Author.objects.get_or_create(name=entry.author)[0]
+            review, created = Review.objects.get_or_create(
+                title=entry.title,
+                author=author,
+                url=entry.url,
+                date=entry.date,
+            )
+            if created:
+                new_reviews.append(review)
 
-    return new_reviews
+        notify_users(new_reviews)
+
+        return new_reviews
+    finally:
+        ParserControl.stop_running()
 
 
 async def collect_movies_from_feeds_async(ignore_cutoff_date: bool) -> list[Entry]:

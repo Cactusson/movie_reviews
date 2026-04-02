@@ -95,3 +95,34 @@ class TaskControl(models.Model):
             obj.is_enabled = False
             obj.disabled_at = timezone.now()
             obj.save()
+
+
+class ParserControl(models.Model):
+    """
+    To prevent running the parsing function multiple times at the same time.
+    """
+
+    is_running = models.BooleanField(default=False)
+    started_at = models.DateTimeField(null=True, blank=True)
+    stopped_at = models.DateTimeField(null=True, blank=True)
+
+    @classmethod
+    def is_parsing_running(cls) -> bool:
+        obj = cls.objects.get_or_create(pk=1)[0]
+        return obj.is_running
+
+    @classmethod
+    def start_running(cls) -> None:
+        obj = cls.objects.get_or_create(pk=1)[0]
+        if not obj.is_running:
+            obj.is_running = True
+            obj.started_at = timezone.now()
+            obj.save()
+
+    @classmethod
+    def stop_running(cls) -> None:
+        obj = cls.objects.get_or_create(pk=1)[0]
+        if obj.is_running:
+            obj.is_running = False
+            obj.stopped_at = timezone.now()
+            obj.save()
