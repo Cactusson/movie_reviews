@@ -1,5 +1,8 @@
+from datetime import datetime
 from typing import Any
 
+import feedparser
+import requests
 from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
@@ -134,6 +137,23 @@ class LetterboxdUser(models.Model):
     def __str__(self) -> str:
         return self.name
 
+    def save(self, *args, **kwargs) -> None:
+        super().save(*args, **kwargs)
+        self.parse_letterboxd_rss()
+
+    def parse_letterboxd_rss(self) -> None:
+        response = requests.get(f"https://letterboxd.com/{self.name}/rss/", timeout=10)
+        response.raise_for_status()
+        feed = feedparser.parse(response.content)
+        for entry in feed.entries:
+            if entry.id.split("-")[1] not in ["watch", "review"]:
+                continue
+            LetterboxdEntry.objects.get_or_create(
+                letterboxd_user=self,
+                title=entry.get("letterboxd_filmtitle"),
+                date=datetime.strptime(entry.published, "%a, %d %b %Y %H:%M:%S %z"),
+            )
+
 
 class LetterboxdEntry(models.Model):
     letterboxd_user = models.ForeignKey(
@@ -144,6 +164,7 @@ class LetterboxdEntry(models.Model):
 
     class Meta:
         unique_together = ("letterboxd_user", "title", "date")
+        ordering = ("-date",)
 
     def __str__(self) -> str:
         return self.title

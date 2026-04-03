@@ -9,6 +9,7 @@ urlpatterns = [
     path("<int:pk>/", views.review_detail, name="review_detail"),
     path("search/", views.search, name="search"),
     path("profile/", views.profile, name="profile"),
+    path("letterboxd/", views.letterboxd, name="letterboxd"),
     path("authors/", views.author_list, name="author_list"),
     path("<str:slug>/", views.author_detail, name="author_detail"),
     path("<str:slug>/follow/", views.author_follow, name="author_follow"),

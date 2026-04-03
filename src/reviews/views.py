@@ -10,7 +10,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from reviews.forms import SettingsForm
-from reviews.models import Author, Review
+from reviews.models import Author, LetterboxdUser, Review
 
 
 def home_page(request: HttpRequest) -> HttpResponse:
@@ -99,15 +99,49 @@ def author_unfollow(request: HttpRequest, slug: str) -> HttpResponse:
 @login_required
 def profile(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
-        form = SettingsForm(request.POST, instance=request.user)
+        form = SettingsForm(request.POST)
         if form.is_valid():
-            form.save()
+            request.user.email_notifications = form.cleaned_data["email_notifications"]
+            letterboxd_username = form.cleaned_data["letterboxd_username"]
+            letterboxd_user = LetterboxdUser.objects.get_or_create(
+                name=letterboxd_username
+            )[0]
+            request.user.letterboxd_user = letterboxd_user
+            request.user.save()
             messages.success(request, "Your notifications settings have been saved.")
-            return redirect("reviews:profile")
+        else:
+            messages.error(request, "Your settings are incorrect.")
+        return redirect("reviews:profile")
     else:
-        form = SettingsForm(instance=request.user)
+        if hasattr(request.user, "letterboxd_user") and request.user.letterboxd_user:
+            letterboxd_username = request.user.letterboxd_user.name
+        else:
+            letterboxd_username = ""
+        data = {
+            "email_notifications": getattr(request.user, "email_notifications", False),
+            "letterboxd_username": letterboxd_username,
+        }
+        form = SettingsForm(initial=data)
         authors = sorted(
             request.user.follows.all(), key=lambda author: author.last_name
         )
         context = {"authors": authors, "form": form}
         return render(request, "reviews/profile.html", context)
+
+
+@login_required
+def letterboxd(request: HttpRequest) -> HttpResponse:
+    letterboxd_user = request.user.letterboxd_user
+    if letterboxd_user is None:
+        return render(request, "reviews/letterboxd.html")
+    batches = []
+    for entry in letterboxd_user.entries.all():
+        reviews = Review.objects.filter(title=entry.title)
+        if reviews:
+            batches.append(reviews)
+
+    paginator = Paginator(batches, settings.REVIEWS_PER_PAGE)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {"page_obj": page_obj}
+    return render(request, "reviews/letterboxd.html", context)

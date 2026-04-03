@@ -1,14 +1,15 @@
+from django import forms
 from django.contrib.auth import get_user_model
-from django.forms import ModelForm
 
 USER_MODEL = get_user_model()
 
 
-class SettingsForm(ModelForm):
-    class Meta:
-        model = USER_MODEL
-        fields = ["email_notifications", "letterboxd_user"]
-        labels = {
-            "email_notifications": "Email notifications",
-            "letterboxd_user": "Your Letterboxd account",
-        }
+class SettingsForm(forms.Form):
+    email_notifications = forms.BooleanField(
+        required=False,
+        label="Email notifications",
+    )
+    letterboxd_username = forms.CharField(
+        required=False,
+        label="Your Letterboxd account",
+    )

@@ -1,9 +1,10 @@
+from unittest import mock
 from unittest.mock import patch
 
 import pytest
 from django.test import override_settings
 
-from reviews.models import Review
+from reviews.models import LetterboxdUser, Review
 from reviews.parsers import IndieWireParser, Parser, collect_movies_from_feeds
 
 
@@ -113,6 +114,18 @@ class TestParser:
         assert Review.objects.count() == 0
         collect_movies_from_feeds(ignore_cutoff_date=True)
         assert Review.objects.count() == 1
+
+    @override_settings(
+        RSS_PARSERS={"https://www.rogerebert.com/reviews/feed/": "RogerEbertParser"},
+    )
+    @mock.patch("reviews.models.LetterboxdUser.parse_letterboxd_rss")
+    def test_parser_will_also_update_letterboxd_entries(
+        self, mock_parse_letterboxd, parser, mocked_letterboxd_feed, mocked_rss_feed
+    ):
+        LetterboxdUser.objects.create(name="alice")
+        assert mock_parse_letterboxd.call_count == 1
+        collect_movies_from_feeds()
+        assert mock_parse_letterboxd.call_count == 2
 
 
 @pytest.mark.django_db

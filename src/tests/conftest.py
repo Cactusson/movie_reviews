@@ -2,6 +2,7 @@ import datetime
 import os
 
 import pytest
+import responses
 import time_machine
 from aioresponses import aioresponses
 from django.contrib.auth import get_user_model
@@ -175,17 +176,32 @@ def mocked_rss_feed():
         yield m
 
 
+# @pytest.fixture
+# def mocked_letterboxd_feed():
+#     with aioresponses() as m:
+#         with open("tests/fixtures/test_feed_letterboxd.xml") as file:
+#             rss_content = file.read()
+#         m.get(
+#             "https://www.letterboxd.com/alice/rss/",
+#             body=rss_content,
+#             status=200,
+#         )
+#         yield m
+
+
 @pytest.fixture
 def mocked_letterboxd_feed():
-    with aioresponses() as m:
-        with open("tests/fixtures/test_feed_letterboxd.xml") as file:
-            rss_content = file.read()
-        m.get(
-            "https://www.indiewire.com/c/criticism/movies/feed/?paged=2",
+    with open("tests/fixtures/test_feed_letterboxd.xml") as file:
+        rss_content = file.read()
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
+        rsps.add(
+            responses.GET,
+            "https://letterboxd.com/alice/rss/",
             body=rss_content,
             status=200,
+            content_type="application/xml",
         )
-        yield m
+        yield rsps
 
 
 @pytest.fixture(autouse=True, scope="session")

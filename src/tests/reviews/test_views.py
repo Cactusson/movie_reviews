@@ -2,7 +2,7 @@ import pytest
 from bs4 import BeautifulSoup
 from pytest_django import asserts
 
-from reviews.models import Author
+from reviews.models import Author, LetterboxdEntry, LetterboxdUser
 
 
 @pytest.mark.django_db
@@ -351,6 +351,20 @@ class TestProfile:
         assert mzs.name in str(author_list)
         assert sheila.name not in str(author_list)
 
+    def test_filling_up_letterboxd_username_updates_db(
+        self, client, first_user, night_patrol, mocked_letterboxd_feed
+    ):
+        client.force_login(first_user)
+        assert LetterboxdUser.objects.count() == 0
+        assert LetterboxdEntry.objects.count() == 0
+        form_data = {
+            "email_notifications": False,
+            "letterboxd_username": "alice",
+        }
+        client.post("/profile/", data=form_data)
+        assert LetterboxdUser.objects.count() == 1
+        assert LetterboxdEntry.objects.count() == 50
+
 
 @pytest.mark.django_db
 class TestLetterboxd:
@@ -368,3 +382,13 @@ class TestLetterboxd:
         soup = self.soup(client)
         reviews = soup.find_all("div", {"class": "review"})
         assert len(reviews) == 0
+
+    def test_user_with_letterboxd_account_sees_reviews(
+        self, client, first_user, night_patrol, mocked_letterboxd_feed
+    ):
+        client.force_login(first_user)
+        first_user.letterboxd_user = LetterboxdUser.objects.create(name="alice")
+        first_user.save()
+        soup = self.soup(client)
+        reviews = soup.find_all("div", {"class": "review"})
+        assert len(reviews) == 1

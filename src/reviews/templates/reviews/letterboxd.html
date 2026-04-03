@@ -1,18 +1,23 @@
 {% extends "reviews/base.html" %}
 
-{% block title %}Movie Reviews{% endblock %}
+{% block title %}Letterboxd{% endblock %}
 
 {% block content %}
-    <h1>Movie Reviews</h1>
+    <h1>Letterboxd</h1>
 
     {% if user.is_authenticated %}
-        <p>{% if all_reviews %}<a href="{% url "reviews:home_page" %}">Your feed</a>{% else %}<strong>Your feed</strong>{% endif %}</p>
-        <p>{% if not all_reviews %}<a href="{% url "reviews:full_feed" %}">All reviews</a>{% else %}<strong>All reviews</strong>{% endif %}</p>
-        <p><a href="{% url "reviews:letterboxd" %}">Letterboxd</a></p>
-        {% endif %}
+        <p><a href="{% url "reviews:home_page" %}">Your feed</a></p>
+        <p><a href="{% url "reviews:full_feed" %}">All reviews</a></p>
+        <p><strong>Letterboxd</strong></p>
+    {% endif %}
 
-    {% for review in page_obj %}
-        {% include "reviews/_review.html" with review=review link_needed=True %}
+    {% for batch_of_reviews in page_obj %}
+        {% for review in batch_of_reviews %}
+            {% include "reviews/_review.html" with review=review link_needed=True %}
+        {% endfor %}
+        {% if not forloop.last %}
+            <hr>
+        {% endif %}
     {% endfor %}
 
     {% if page_obj.has_previous or page_obj.has_next %}

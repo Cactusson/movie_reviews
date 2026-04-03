@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils import timezone
 from feedparser.util import FeedParserDict
 
-from reviews.models import Author, ParserControl, Review
+from reviews.models import Author, LetterboxdUser, ParserControl, Review
 from reviews.notifications import notify_users
 
 
@@ -55,10 +55,16 @@ def collect_movies_from_feeds(
                 new_reviews.append(review)
 
         notify_users(new_reviews)
+        update_letterboxd_entries()
 
         return new_reviews
     finally:
         ParserControl.stop_running()
+
+
+def update_letterboxd_entries():
+    for letterboxd_user in LetterboxdUser.objects.all():
+        letterboxd_user.parse_letterboxd_rss()
 
 
 async def collect_movies_from_feeds_async(ignore_cutoff_date: bool) -> list[Entry]:
@@ -109,7 +115,6 @@ class Parser(ABC):
 
     async def parse_one_rss_page(self, url: str, page: int = 1) -> list[FeedParserDict]:
         max_retries = 2
-        print(url, page)
         async with aiohttp.ClientSession() as session:
             for _ in range(max_retries + 1):
                 async with session.get(url, params={"paged": page}) as response:

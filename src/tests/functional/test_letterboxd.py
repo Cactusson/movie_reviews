@@ -1,13 +1,11 @@
 import re
 
-import pytest
 from django.core import mail
 from playwright.sync_api import expect
 
 from .pages.home_page import HomePage
 
 
-@pytest.mark.skip
 def test_letterboxd(
     live_server,
     page,
@@ -15,6 +13,7 @@ def test_letterboxd(
     king_of_color,
     sound_of_falling,
     night_patrol,
+    mocked_letterboxd_feed,
 ):
     home_page = HomePage(page)
     home_page.navigate(live_server)
@@ -60,6 +59,6 @@ def test_letterboxd(
 
     # One of the movies Alice has seen recently is called `Night Patrol`
     # Sure enough, it is listed on the page
-    first_review = page.locator("div.review").first()
+    first_review = page.locator("div.review").first
     expect(first_review).to_be_visible()
     expect(first_review).to_contain_text("Night Patrol")
