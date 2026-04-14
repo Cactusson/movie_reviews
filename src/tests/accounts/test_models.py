@@ -3,6 +3,7 @@ from django.contrib import auth
 from django.core.exceptions import ValidationError
 
 from accounts.models import CustomUser, Token
+from reviews.models import LetterboxdUser
 
 
 @pytest.mark.django_db
@@ -22,6 +23,15 @@ class TestCustomUserModel:
     def test_email_is_primary_key(self):
         user = CustomUser(email="test@example.com")
         assert user.pk == "test@example.com"
+
+    def test_two_users_can_have_same_letterboxd_account(self, mocked_letterboxd_feed):
+        first_user = CustomUser.objects.create(email="first@example.com")
+        second_user = CustomUser.objects.create(email="second@example.com")
+        letterboxd_user = LetterboxdUser.objects.create(name="alice")
+        first_user.letterboxd_user = letterboxd_user
+        first_user.save()
+        second_user.letterboxd_user = letterboxd_user
+        second_user.save()  # does not raise an error
 
 
 @pytest.mark.django_db

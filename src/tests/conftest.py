@@ -176,19 +176,6 @@ def mocked_rss_feed():
         yield m
 
 
-# @pytest.fixture
-# def mocked_letterboxd_feed():
-#     with aioresponses() as m:
-#         with open("tests/fixtures/test_feed_letterboxd.xml") as file:
-#             rss_content = file.read()
-#         m.get(
-#             "https://www.letterboxd.com/alice/rss/",
-#             body=rss_content,
-#             status=200,
-#         )
-#         yield m
-
-
 @pytest.fixture
 def mocked_letterboxd_feed():
     with open("tests/fixtures/test_feed_letterboxd.xml") as file:

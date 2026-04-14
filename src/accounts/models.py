@@ -40,7 +40,7 @@ class CustomUserManager(BaseUserManager["CustomUser"]):
 class CustomUser(AbstractBaseUser):
     email = models.EmailField(primary_key=True)
     email_notifications = models.BooleanField(default=False)
-    letterboxd_user = models.OneToOneField(
+    letterboxd_user = models.ForeignKey(
         "reviews.LetterboxdUser",
         related_name="user",
         on_delete=models.CASCADE,
