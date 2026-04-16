@@ -67,6 +67,8 @@ frozenlist==1.8.0
     #   aiosignal
 greenlet==3.3.0
     # via playwright
+gunicorn==25.3.0
+    # via movie-reviews
 identify==2.6.16
     # via pre-commit
 idna==3.11
@@ -92,6 +94,7 @@ nodeenv==1.10.0
 packaging==26.0
     # via
     #   aioresponses
+    #   gunicorn
     #   kombu
     #   pytest
 pathspec==1.0.4

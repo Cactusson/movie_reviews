@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 
-from decouple import config
+from decouple import Csv, config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default=True, cast=bool)
 
-ALLOWED_HOSTS: list[str] = []
+ALLOWED_HOSTS: list[str] = config("ALLOWED_HOSTS", default="localhost", cast=Csv())
 
 
 # Application definition
@@ -123,6 +123,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 AUTHENTICATION_BACKENDS = [
@@ -137,7 +138,7 @@ EMAIL_USE_TLS = True
 
 CELERY_BROKER_URL = "amqp://guest:guest@rabbitmq:5672//"
 
-REVIEWS_PER_PAGE = 30
+REVIEWS_PER_PAGE = 50
 
 RSS_PARSERS = {
     "https://www.rogerebert.com/reviews/feed/": "RogerEbertParser",
@@ -145,7 +146,7 @@ RSS_PARSERS = {
     "https://larsenonfilm.com/feed/": "LarsenOnFilmParser",
     "https://www.movie-blogger.com/feed/": "MovieBloggerParser",
 }
-CUTOFF_YEAR = 2025  # the parser will collect reviews up to and including this year
+CUTOFF_YEAR = 2015  # the parser will collect reviews up to and including this year
 
 
 DOMAIN = config("DOMAIN")
