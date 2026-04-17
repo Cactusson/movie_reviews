@@ -50,3 +50,21 @@ Available commands:
 + `collect_reviews` : Collects reviews manually.
   - Without `--init`: Only fetches reviews from the last week.
   - With `--init`: Fetches reviews up to the `CUTOFF_YEAR` (2015 by default, you can change it in `settings.py`).
+
+## How to Add Another Website
+
+1. Create a new parser class in `parsers.py`, for example, `MyNewParser`. It should inherit from the base `Parser` class:
+
+```python
+class MyNewParser(Parser):
+    ...
+```
+
+2. Add the URL and your parser class to the `RSS_PARSERS` dictionary in `settings.py`:
+
+```python
+RSS_PARSERS = {
+    # ...
+    "https://www.mywebsite.com/feed/": "MyNewParser",
+}
+```
