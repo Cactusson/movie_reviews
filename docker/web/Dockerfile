@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     libxkbcommon-dev \
     libgbm-dev \
     libasound2 \
+    dos2unix \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -25,5 +26,7 @@ RUN playwright install chromium && \
 COPY . .
 
 EXPOSE 8000
+
+RUN dos2unix ./docker/web/entrypoint.sh && chmod +x ./docker/web/entrypoint.sh
 
 CMD ["./docker/web/entrypoint.sh"]
